@@ -1,0 +1,2470 @@
+Create a complete, detailed, production-oriented AWS study guide in Markdown (.md) for a Software Engineer II / SDE2 Java Backend Developer with ~3 years of experience.
+
+The goal is to create a single high-quality reference document that takes me from AWS fundamentals to the level expected from an SDE2 working on Java/Spring Boot backend systems.
+
+IMPORTANT REQUIREMENTS
+
+* Cover EVERY topic and subtopic listed below. Do not skip, merge, or silently omit any item.
+* Use proper Markdown formatting:
+    * # for major sections
+    * ## for topics
+    * ### for subtopics
+    * #### where another level is genuinely needed
+    * Tables for comparisons
+    * Bullet/numbered lists where appropriate
+    * Fenced code blocks with the correct language
+    * Callouts such as Important, Warning, Interview Tip, and Best Practice
+* Explain concepts from fundamentals first and gradually reach SDE2/production depth.
+* Do not merely define AWS services. Explain why they exist, what problem they solve, when to use them, when NOT to use them, how they work internally at a high level, limitations, trade-offs, and common production mistakes.
+* Wherever useful, include realistic examples using Java, Spring Boot, REST APIs, Docker, SQL, PostgreSQL/MySQL, Redis, Kafka, Maven, and Linux.
+* Include AWS CLI examples where useful.
+* Include architecture diagrams using Mermaid where appropriate.
+* Include request/data-flow examples.
+* Include practical production scenarios.
+* Include troubleshooting scenarios and how an SDE2 would investigate them.
+* Include security considerations for every relevant service.
+* Include scalability, availability, reliability, performance, and cost considerations wherever relevant.
+* Include AWS service comparisons wherever confusion is common.
+* Include interview-oriented explanations and common SDE2 interview questions.
+* Explain important AWS terminology instead of assuming prior AWS knowledge.
+* Use realistic examples rather than toy examples whenever possible.
+* For code examples, prefer Java/Spring Boot when the example involves backend development.
+* Ensure all code blocks are syntactically valid and clearly labeled.
+* Do not excessively repeat explanations, but cross-reference earlier concepts when appropriate.
+* At the end of every major section, include:
+    1. Key Takeaways
+    2. Common Mistakes
+    3. SDE2 Interview Questions
+    4. Practical Exercise
+* At the end of the entire document, include:
+    * AWS SDE2 Cheat Sheet
+    * Service Selection Guide
+    * Architecture Patterns
+    * Production Troubleshooting Guide
+    * Security Checklist
+    * Cost Optimization Checklist
+    * SDE2 Interview Question Bank
+    * Hands-on Project Roadmap
+    * Final Learning Checklist
+
+⸻
+
+1. AWS Fundamentals
+
+Cloud Computing
+
+* What is Cloud Computing
+* IaaS vs PaaS vs SaaS
+* Public vs Private vs Hybrid Cloud
+* Regions
+* Availability Zones
+* Edge Locations
+* AWS Global Infrastructure
+* Scalability
+* Elasticity
+* High Availability
+* Fault Tolerance
+* Disaster Recovery
+* Shared Responsibility Model
+
+AWS Account & Organization
+
+* AWS Account
+* Root User
+* IAM Users
+* IAM Roles
+* IAM Policies
+* AWS Organizations
+* Organizational Units
+* Service Control Policies
+* AWS Control Tower
+* AWS Resource Groups
+* AWS Resource Explorer
+
+AWS Pricing
+
+* On-Demand Pricing
+* Reserved Instances
+* Savings Plans
+* Spot Instances
+* Free Tier
+* Cost Allocation Tags
+* AWS Cost Explorer
+* AWS Budgets
+* AWS Cost and Usage Reports
+
+⸻
+
+2. IAM — Identity & Access Management
+
+IAM Basics
+
+* Users
+* Groups
+* Roles
+* Policies
+* Permissions
+* Access Keys
+* MFA
+* Password Policies
+
+IAM Policies
+
+* Identity-based Policies
+* Resource-based Policies
+* Permission Boundaries
+* Explicit Allow
+* Explicit Deny
+* Policy Evaluation Logic
+* Policy Conditions
+* Policy Variables
+* Least Privilege
+
+IAM Roles
+
+* EC2 IAM Role
+* Lambda Execution Role
+* ECS Task Role
+* Cross-account IAM Roles
+* Service Roles
+* AssumeRole
+* STS
+
+Security Identity Services
+
+* AWS STS
+* IAM Identity Center
+* Cognito
+* SAML
+* OAuth 2.0
+* OpenID Connect
+* Federation
+* Temporary Credentials
+
+SDE2-Level IAM
+
+* Cross-account access
+* Role chaining
+* Workload identity
+* Secret access without hardcoding credentials
+* IAM policy debugging
+* Least-privilege design
+
+Include examples of:
+
+* IAM policies
+* IAM role assumption
+* EC2 accessing S3 through an IAM role
+* Cross-account access
+* Debugging AccessDenied
+* Secure vs insecure credential handling
+
+⸻
+
+3. EC2
+
+EC2 Fundamentals
+
+* Instance
+* AMI
+* Instance Types
+* vCPU
+* Memory
+* Network Performance
+* EBS
+* Instance Store
+* User Data
+* Instance Metadata
+* Instance Lifecycle
+
+Instance Types
+
+* General Purpose
+* Compute Optimized
+* Memory Optimized
+* Storage Optimized
+* Accelerated Computing
+
+EC2 Storage
+
+* EBS
+* EBS Volumes
+* EBS Snapshots
+* EBS Encryption
+* Volume Types
+* IOPS
+* Throughput
+
+EC2 Networking
+
+* Private IP
+* Public IP
+* Elastic IP
+* ENI
+* Security Groups
+* Subnets
+* Route Tables
+* NAT Gateway
+
+EC2 Operations
+
+* SSH
+* Systems Manager Session Manager
+* AMI creation
+* Instance recovery
+* Auto Recovery
+* Shutdown behavior
+* Placement Groups
+
+Production Concepts
+
+* Immutable infrastructure
+* Golden AMIs
+* Auto Scaling
+* Instance replacement
+* Health checks
+* Rolling deployments
+* Blue/Green deployment
+
+Include:
+
+* Launching a Spring Boot application on EC2
+* Java process management
+* systemd example
+* Nginx → Spring Boot architecture
+* Security Group configuration
+* SSH troubleshooting
+* CPU/memory/disk troubleshooting
+
+⸻
+
+4. VPC — Very Important
+
+VPC Basics
+
+* VPC
+* CIDR
+* Subnet
+* Availability Zone
+* Route Table
+* Internet Gateway
+* NAT Gateway
+* Elastic Network Interface
+
+Subnets
+
+* Public Subnet
+* Private Subnet
+* Isolated Subnet
+* CIDR planning
+* Multi-AZ subnet architecture
+
+Routing
+
+* Route Tables
+* Default Routes
+* Local Routes
+* Internet Gateway Routes
+* NAT Routes
+* VPC Peering Routes
+* Transit Gateway Routes
+
+Security
+
+* Security Groups
+* Network ACLs
+* Stateful vs Stateless filtering
+* Inbound Rules
+* Outbound Rules
+
+VPC Connectivity
+
+* VPC Peering
+* Transit Gateway
+* VPN
+* AWS Direct Connect
+* PrivateLink
+* VPC Endpoints
+
+VPC Endpoints
+
+* Gateway Endpoint
+* Interface Endpoint
+* Private access to AWS services
+
+DNS
+
+* Route 53 Resolver
+* Private Hosted Zones
+* Public Hosted Zones
+* DNS Resolution
+* Split-horizon DNS
+
+Include Mermaid architecture diagrams showing:
+
+Internet
+   |
+Internet Gateway
+   |
+Public Subnet
+   |
+ALB
+   |
+Private Subnet
+   |
+Spring Boot Application
+   |
+Database Subnet
+   |
+RDS
+
+Also explain how traffic flows and how to troubleshoot connectivity.
+
+⸻
+
+5. Elastic Load Balancing
+
+Load Balancers
+
+* ALB
+* NLB
+* Gateway Load Balancer
+
+ALB
+
+* Listeners
+* Listener Rules
+* Target Groups
+* Health Checks
+* Path-based Routing
+* Host-based Routing
+* Header-based Routing
+* Weighted Routing
+* Sticky Sessions
+
+NLB
+
+* TCP
+* TLS
+* UDP
+* Static IP
+* High throughput
+* Connection-level load balancing
+
+Production Concepts
+
+* Connection draining
+* Deregistration delay
+* Health checks
+* Cross-zone load balancing
+* TLS termination
+
+Include ALB vs NLB comparison table and Spring Boot examples.
+
+⸻
+
+6. Auto Scaling
+
+EC2 Auto Scaling
+
+* Auto Scaling Groups
+* Launch Templates
+* Desired Capacity
+* Minimum Capacity
+* Maximum Capacity
+* Scaling Policies
+
+Scaling Types
+
+* Target Tracking
+* Step Scaling
+* Simple Scaling
+* Scheduled Scaling
+* Predictive Scaling
+
+Health Checks
+
+* EC2 Health Checks
+* ELB Health Checks
+* Instance replacement
+
+Deployment
+
+* Rolling deployment
+* Blue/Green deployment
+* Canary deployment
+
+Explain how to select scaling policies based on workload.
+
+⸻
+
+7. S3
+
+S3 Fundamentals
+
+* Bucket
+* Object
+* Key
+* Prefix
+* Metadata
+* Versioning
+
+Storage Classes
+
+* Standard
+* Intelligent-Tiering
+* Standard-IA
+* One Zone-IA
+* Glacier Instant Retrieval
+* Glacier Flexible Retrieval
+* Glacier Deep Archive
+
+Security
+
+* Bucket Policies
+* IAM Policies
+* Block Public Access
+* ACLs
+* Object Ownership
+* Encryption
+
+Encryption
+
+* SSE-S3
+* SSE-KMS
+* SSE-C
+* Client-side encryption
+
+S3 Features
+
+* Multipart Upload
+* Presigned URLs
+* Lifecycle Policies
+* Versioning
+* Object Lock
+* Replication
+* Event Notifications
+* Static Website Hosting
+
+SDE2 Use Cases
+
+* File uploads
+* Image storage
+* Logs
+* Backups
+* Data lakes
+* User-generated content
+
+Include Java/Spring Boot examples for:
+
+* Uploading files
+* Downloading files
+* Presigned URLs
+* Multipart uploads
+* S3 event processing
+
+⸻
+
+8. RDS
+
+Database Fundamentals
+
+* RDS
+* DB Instance
+* DB Cluster
+* DB Subnet Groups
+* Parameter Groups
+* Option Groups
+
+Supported Databases
+
+* PostgreSQL
+* MySQL
+* MariaDB
+* Oracle
+* SQL Server
+* Aurora
+
+High Availability
+
+* Multi-AZ
+* Read Replicas
+* Failover
+* Automated Backups
+* Snapshots
+
+Scaling
+
+* Vertical scaling
+* Read replicas
+* Aurora scaling
+* Storage autoscaling
+
+Production Concepts
+
+* Connection pooling
+* Failover
+* Backup strategy
+* Restore
+* PITR
+* Maintenance windows
+* Database monitoring
+
+Include Spring Boot + RDS examples and HikariCP connection pool configuration.
+
+⸻
+
+9. Aurora
+
+Aurora Architecture
+
+* Writer
+* Readers
+* Storage layer
+* Shared distributed storage
+* Replicas
+
+Aurora Features
+
+* Aurora Serverless
+* Global Database
+* Read Scaling
+* Failover
+* Backtracking
+* Automated backups
+
+Aurora vs RDS
+
+Compare:
+
+* Architecture
+* Performance
+* Availability
+* Scaling
+* Cost
+* Operational complexity
+* Use cases
+
+⸻
+
+10. DynamoDB
+
+Fundamentals
+
+* Table
+* Item
+* Attribute
+* Partition Key
+* Sort Key
+
+Data Modeling
+
+* Single-table design
+* Access-pattern-driven design
+* Composite keys
+* Hot partitions
+* Sparse indexes
+
+Indexes
+
+* GSI
+* LSI
+
+Capacity
+
+* Provisioned Capacity
+* On-demand Capacity
+* Read Capacity Units
+* Write Capacity Units
+
+Consistency
+
+* Eventually Consistent Reads
+* Strongly Consistent Reads
+
+Advanced
+
+* Conditional Writes
+* Transactions
+* TTL
+* Streams
+* DAX
+* Batch Operations
+
+Production
+
+* Partition-key design
+* Hot key prevention
+* Capacity planning
+* Throttling
+* Retry strategies
+
+Include Java AWS SDK examples and a realistic single-table design example.
+
+⸻
+
+11. ElastiCache
+
+Redis
+
+* Redis basics
+* Redis data structures
+* Cache-aside
+* Read-through
+* Write-through
+* Write-behind
+
+Caching Concepts
+
+* Cache invalidation
+* TTL
+* Cache stampede
+* Cache penetration
+* Cache eviction
+* Hot keys
+* Distributed locking
+
+AWS
+
+* ElastiCache Redis
+* ElastiCache Memcached
+* Cluster mode
+* Replication
+* Failover
+* Multi-AZ
+
+Include Spring Boot Redis examples.
+
+⸻
+
+12. SQS
+
+SQS
+
+* Queue
+* Producer
+* Consumer
+* Message
+* Visibility Timeout
+* Long Polling
+* Dead Letter Queue
+* Message Retention
+
+Queue Types
+
+* Standard Queue
+* FIFO Queue
+
+Reliability
+
+* At-least-once delivery
+* Duplicate messages
+* Idempotency
+* Retry
+* DLQ
+
+Production Concepts
+
+* Visibility timeout tuning
+* Poison messages
+* Consumer scaling
+* Backpressure
+* Batch processing
+
+Include a Java/Spring Boot consumer and producer example.
+
+⸻
+
+13. SNS
+
+SNS
+
+* Topic
+* Publisher
+* Subscriber
+* Subscription
+* Fan-out
+
+Subscribers
+
+* SQS
+* Lambda
+* HTTP/S
+* Email
+* SMS
+
+Concepts
+
+* Pub/Sub
+* Fan-out architecture
+* Message filtering
+* Dead-letter handling
+
+Include an SNS → SQS → Spring Boot architecture example.
+
+⸻
+
+14. EventBridge
+
+Concepts
+
+* Event
+* Event Bus
+* Rule
+* Target
+* Event Pattern
+
+Integrations
+
+* Lambda
+* SQS
+* SNS
+* Step Functions
+* ECS
+* API destinations
+
+Architecture
+
+* Event-driven architecture
+* Loose coupling
+* Event routing
+* Event filtering
+
+Include realistic business event examples such as:
+
+OrderCreated
+PaymentCompleted
+UserRegistered
+InvoiceGenerated
+
+⸻
+
+15. Kafka / Amazon MSK
+
+MSK
+
+* Amazon MSK
+* Brokers
+* Topics
+* Partitions
+* Replication
+* Consumer Groups
+
+Kafka Concepts
+
+* Producer
+* Consumer
+* Offset
+* Partition
+* Leader
+* Follower
+* Replication Factor
+* ISR
+
+Production
+
+* Ordering
+* Exactly-once semantics
+* At-least-once
+* Idempotency
+* Consumer lag
+* Partition strategy
+* Rebalancing
+
+Include Spring Kafka examples and compare:
+
+Kafka vs SQS vs SNS vs EventBridge
+
+⸻
+
+16. Lambda
+
+Basics
+
+* Function
+* Handler
+* Runtime
+* Execution Role
+* Invocation
+
+Invocation
+
+* Synchronous
+* Asynchronous
+* Event-driven
+
+Integrations
+
+* API Gateway
+* S3
+* SQS
+* SNS
+* EventBridge
+* DynamoDB Streams
+
+Scaling
+
+* Concurrent executions
+* Reserved concurrency
+* Provisioned concurrency
+* Cold starts
+
+Advanced
+
+* Lambda Layers
+* Environment Variables
+* Extensions
+* Versions
+* Aliases
+* Dead Letter Queue
+* Destinations
+
+Java Lambda
+
+* JVM startup
+* Cold start
+* Memory configuration
+* SnapStart
+
+Include a Java Lambda example.
+
+⸻
+
+17. API Gateway
+
+API Gateway Types
+
+* REST API
+* HTTP API
+* WebSocket API
+
+Concepts
+
+* Routes
+* Stages
+* Deployments
+* Integration
+* Authorizers
+
+Security
+
+* IAM Authentication
+* Cognito
+* Lambda Authorizer
+* API Keys
+* Usage Plans
+* Throttling
+
+Production
+
+* Rate limiting
+* Caching
+* CORS
+* Request validation
+* Custom domains
+* TLS
+
+Compare API Gateway vs ALB.
+
+⸻
+
+18. ECS
+
+ECS
+
+* Cluster
+* Service
+* Task
+* Task Definition
+* Container
+* Container Registry
+
+Launch Types
+
+* EC2
+* Fargate
+
+Task Definition
+
+* CPU
+* Memory
+* Port mappings
+* Environment variables
+* Secrets
+* IAM roles
+* Logging
+
+ECS Networking
+
+* awsvpc
+* Security Groups
+* Subnets
+* Load Balancer
+
+Deployment
+
+* Rolling deployment
+* Blue/Green deployment
+* Service discovery
+* Auto Scaling
+
+Include a complete:
+
+Spring Boot → Docker → ECR → ECS Fargate → ALB
+
+deployment architecture.
+
+⸻
+
+19. ECR
+
+ECR
+
+* Repository
+* Image
+* Tags
+* Image digest
+* Lifecycle policies
+
+Docker
+
+* Dockerfile
+* Image layers
+* Multi-stage builds
+* Container security
+* Image scanning
+
+Include a production Dockerfile for a Spring Boot application.
+
+⸻
+
+20. Kubernetes / EKS
+
+Kubernetes
+
+* Cluster
+* Node
+* Pod
+* Deployment
+* Service
+* Namespace
+* ConfigMap
+* Secret
+* Ingress
+
+EKS
+
+* Control plane
+* Worker nodes
+* Managed Node Groups
+* Fargate
+* IAM integration
+* Load Balancers
+
+Production
+
+* HPA
+* Cluster Autoscaler
+* Pod disruption
+* Rolling deployments
+* Health probes
+* Resource requests/limits
+
+Compare ECS vs EKS and explain when an SDE2 should choose each.
+
+⸻
+
+21. Route 53
+
+DNS
+
+* Domain
+* Hosted Zone
+* Record
+* TTL
+* DNS resolution
+
+Routing Policies
+
+* Simple
+* Weighted
+* Latency-based
+* Failover
+* Geolocation
+* Geoproximity
+* Multivalue
+
+Production
+
+* Health checks
+* DNS failover
+* Domain registration
+* Private hosted zones
+
+Include DNS resolution flow diagrams.
+
+⸻
+
+22. CloudFront
+
+CDN
+
+* Edge locations
+* Distribution
+* Origin
+* Cache behavior
+* Cache policy
+
+Origins
+
+* S3
+* ALB
+* EC2
+* API Gateway
+
+Caching
+
+* Cache key
+* TTL
+* Cache invalidation
+* Origin request policy
+
+Security
+
+* HTTPS
+* TLS
+* Signed URLs
+* Signed Cookies
+* AWS WAF integration
+
+⸻
+
+23. AWS WAF
+
+Security
+
+* Web ACL
+* Rules
+* Rule Groups
+* IP Sets
+* Rate-based Rules
+
+Protection
+
+* SQL Injection
+* XSS
+* Bot protection
+* Rate limiting
+* IP blocking
+
+Include examples of protecting a public Spring Boot API.
+
+⸻
+
+24. Secrets Manager
+
+Secrets
+
+* Database credentials
+* API keys
+* OAuth credentials
+* JWT signing secrets
+
+Features
+
+* Encryption
+* KMS
+* Automatic rotation
+* Versioning
+* IAM access
+
+Java/Spring
+
+* Externalized configuration
+* Runtime secret retrieval
+* Secret rotation
+
+Show an example of securely connecting Spring Boot to a database without hardcoded credentials.
+
+⸻
+
+25. Systems Manager
+
+SSM
+
+* Session Manager
+* Parameter Store
+* Run Command
+* Patch Manager
+* Automation
+
+Parameter Store
+
+* String
+* SecureString
+* Configuration management
+
+Production
+
+* SSH-less EC2 access
+* Remote commands
+* Configuration management
+
+⸻
+
+26. KMS
+
+Encryption
+
+* Symmetric Keys
+* Asymmetric Keys
+* Customer Managed Keys
+* AWS Managed Keys
+
+Concepts
+
+* Key Policies
+* Grants
+* Encryption
+* Decryption
+* Envelope Encryption
+* Key Rotation
+
+Integrations
+
+* S3
+* EBS
+* RDS
+* Secrets Manager
+* SQS
+* SNS
+
+Explain envelope encryption with a practical example.
+
+⸻
+
+27. CloudWatch
+
+Metrics
+
+* CPU
+* Memory
+* Network
+* Application metrics
+* Custom metrics
+
+Logs
+
+* Log Groups
+* Log Streams
+* Log Retention
+* Structured Logging
+
+Alarms
+
+* Thresholds
+* Composite Alarms
+* Alarm Actions
+
+Monitoring
+
+* Dashboards
+* Logs Insights
+* Metric Filters
+* Anomaly Detection
+
+Production
+
+* Error-rate monitoring
+* Latency monitoring
+* Throughput
+* Saturation
+* Alerting
+
+Include CloudWatch Logs Insights query examples.
+
+⸻
+
+28. AWS X-Ray / Distributed Tracing
+
+Concepts
+
+* Trace
+* Segment
+* Subsegment
+* Service Map
+
+Distributed Systems
+
+* Request tracing
+* Latency analysis
+* Dependency analysis
+* Error tracing
+
+Also explain:
+
+* OpenTelemetry
+* Jaeger
+* Datadog
+* Correlation IDs
+
+⸻
+
+29. CloudTrail
+
+Auditing
+
+* API Calls
+* Events
+* User Activity
+* Service Activity
+
+Concepts
+
+* Management Events
+* Data Events
+* Event History
+* Trails
+* CloudTrail Lake
+
+Security
+
+* Detect unauthorized activity
+* Audit IAM
+* Compliance
+
+⸻
+
+30. AWS Config
+
+Configuration Management
+
+* Resource configuration
+* Configuration history
+* Compliance
+
+Concepts
+
+* Config Rules
+* Conformance Packs
+* Remediation
+
+⸻
+
+31. GuardDuty
+
+Threat Detection
+
+* Suspicious activity
+* Compromised credentials
+* Malicious IPs
+* EC2 threats
+* S3 threats
+
+⸻
+
+32. Security Hub
+
+Security
+
+* Centralized security findings
+* Security standards
+* Compliance
+* Finding aggregation
+
+⸻
+
+33. Inspector
+
+Vulnerability Management
+
+* EC2 vulnerabilities
+* Container vulnerabilities
+* Lambda vulnerabilities
+* Software vulnerabilities
+
+⸻
+
+34. AWS Certificate Manager
+
+TLS/SSL
+
+* Certificates
+* Public certificates
+* Private certificates
+* Certificate renewal
+
+Integrations
+
+* ALB
+* CloudFront
+* API Gateway
+
+⸻
+
+35. CI/CD
+
+CodePipeline
+
+* Source
+* Build
+* Test
+* Deploy
+* Pipeline stages
+
+CodeBuild
+
+* Build environment
+* Buildspec
+* Artifacts
+* Environment variables
+
+CodeDeploy
+
+* Deployment groups
+* Blue/Green
+* Rolling deployments
+
+CodeArtifact
+
+* Maven repositories
+* Dependency management
+
+Also Learn
+
+* Jenkins + AWS
+* GitHub Actions + AWS
+* GitLab CI/CD
+* Docker
+* ECR
+* ECS deployment
+
+Include a complete CI/CD pipeline for a Spring Boot application.
+
+⸻
+
+36. Infrastructure as Code
+
+CloudFormation
+
+* Templates
+* Stacks
+* StackSets
+* Parameters
+* Outputs
+* Resources
+* Intrinsic Functions
+* Nested Stacks
+
+Terraform
+
+* Providers
+* Resources
+* Variables
+* Outputs
+* Modules
+* State
+* Remote State
+* State Locking
+* Workspaces
+* Plan
+* Apply
+* Destroy
+
+SDE2-Level
+
+* Infrastructure version control
+* Reproducible infrastructure
+* Environment separation
+* Dev/Staging/Production
+
+Include Terraform examples for:
+
+* VPC
+* EC2
+* ALB
+* ECS
+* RDS
+* S3
+
+⸻
+
+37. Containers
+
+Docker
+
+* Images
+* Containers
+* Dockerfile
+* Layers
+* Volumes
+* Networks
+* Registries
+
+Production
+
+* Multi-stage builds
+* Image optimization
+* Non-root containers
+* Container health checks
+* Resource limits
+* Container security
+
+⸻
+
+38. AWS Architecture Patterns
+
+High Availability
+
+* Multi-AZ architecture
+* Load balancing
+* Auto Scaling
+* Database failover
+* Replication
+
+Scalability
+
+* Horizontal scaling
+* Vertical scaling
+* Stateless services
+* Caching
+* Async processing
+* Database scaling
+
+Reliability
+
+* Retries
+* Timeouts
+* Circuit breakers
+* Bulkheads
+* Idempotency
+* Dead-letter queues
+* Backpressure
+
+Resilience
+
+* Failure isolation
+* Graceful degradation
+* Fallbacks
+* Retry with exponential backoff
+* Jitter
+* Disaster recovery
+
+Include architecture diagrams for each major pattern.
+
+⸻
+
+39. Disaster Recovery
+
+DR Strategies
+
+* Backup & Restore
+* Pilot Light
+* Warm Standby
+* Multi-Site Active/Active
+
+Concepts
+
+* RTO
+* RPO
+* Backups
+* Replication
+* Failover
+* Failback
+
+AWS Services
+
+* S3
+* RDS
+* Aurora
+* Route 53
+* AWS Backup
+* Elastic Disaster Recovery
+
+Include realistic disaster scenarios.
+
+⸻
+
+40. AWS Backup
+
+Concepts
+
+* Backup Plans
+* Backup Vault
+* Recovery Points
+* Retention
+* Lifecycle
+* Cross-region backup
+
+Resources
+
+* EBS
+* RDS
+* DynamoDB
+* EFS
+* S3
+
+⸻
+
+41. Serverless Architecture
+
+Explain:
+
+Client
+   ↓
+CloudFront
+   ↓
+API Gateway
+   ↓
+Lambda
+   ↓
+DynamoDB
+
+And:
+
+S3
+ ↓
+EventBridge
+ ↓
+SQS
+ ↓
+Lambda
+ ↓
+DynamoDB
+
+Explain:
+
+* When serverless makes sense
+* When serverless is a bad choice
+* Cost considerations
+* Scaling
+* Cold starts
+* Operational trade-offs
+
+⸻
+
+42. Event-Driven Architecture
+
+Concepts
+
+* Events
+* Event Producers
+* Event Consumers
+* Event Brokers
+* Event Bus
+* Pub/Sub
+* Fan-out
+
+AWS Services
+
+* EventBridge
+* SNS
+* SQS
+* Lambda
+* Kinesis
+* MSK
+
+Important Concepts
+
+* Eventual consistency
+* Ordering
+* Idempotency
+* Duplicate events
+* Retry
+* DLQ
+* Event versioning
+
+⸻
+
+43. Kinesis
+
+Kinesis Data Streams
+
+* Stream
+* Shard
+* Partition Key
+* Sequence Number
+* Consumer
+
+Concepts
+
+* Real-time streaming
+* Ordering
+* Sharding
+* Retention
+* Enhanced fan-out
+
+Other Kinesis
+
+* Data Firehose
+* Data Analytics
+
+⸻
+
+44. Step Functions
+
+Concepts
+
+* State Machine
+* State
+* Task
+* Choice
+* Parallel
+* Map
+* Wait
+* Retry
+* Catch
+
+Use Cases
+
+* Order workflows
+* Payment workflows
+* Long-running processes
+* Distributed orchestration
+
+Important Distinction
+
+Explain:
+
+EventBridge/SNS/SQS = communication
+
+versus
+
+Step Functions = orchestration
+
+⸻
+
+45. AWS Storage
+
+Compare:
+
+S3
+
+Object storage
+
+EBS
+
+Block storage
+
+EFS
+
+File storage
+
+FSx
+
+Specialized file systems
+
+Explain:
+
+* Performance
+* Availability
+* Durability
+* Cost
+* Access model
+* Scaling
+
+Include a comparison table.
+
+⸻
+
+46. Networking for Backend Engineers
+
+TCP/IP
+
+* IP
+* TCP
+* UDP
+* Ports
+* Connections
+
+HTTP
+
+* HTTP/1.1
+* HTTP/2
+* HTTP/3
+* HTTPS
+* TLS
+
+DNS
+
+* DNS resolution
+* A record
+* AAAA
+* CNAME
+* Alias
+* TTL
+
+Load Balancing
+
+* L4
+* L7
+
+Network Debugging
+
+* ping
+* traceroute
+* curl
+* nslookup
+* dig
+* netstat
+* ss
+
+Give practical debugging commands and scenarios.
+
+⸻
+
+47. AWS + Spring Boot
+
+Spring Boot Deployment
+
+* Spring Boot → EC2
+* Spring Boot → ECS
+* Spring Boot → Fargate
+* Spring Boot → Lambda
+
+Configuration
+
+* application.yml
+* Environment variables
+* Parameter Store
+* Secrets Manager
+
+Security
+
+* Spring Security
+* JWT
+* OAuth2
+* Cognito
+* IAM
+
+Database
+
+* Spring Data JPA
+* PostgreSQL RDS
+* MySQL RDS
+* DynamoDB
+* MongoDB on AWS
+
+Caching
+
+* Spring Cache
+* Redis
+* ElastiCache
+
+Messaging
+
+* Spring Kafka
+* MSK
+* Spring Cloud AWS
+* SQS
+
+Provide practical Java/Spring Boot examples for the important integrations.
+
+⸻
+
+48. Java Backend + AWS Performance
+
+JVM
+
+* Heap
+* Stack
+* GC
+* GC pauses
+* CPU
+* Memory
+
+AWS
+
+* CPU utilization
+* Memory utilization
+* Network throughput
+* Disk I/O
+* Connection limits
+
+Production Debugging
+
+* High CPU
+* High memory
+* OOM
+* Thread exhaustion
+* Connection pool exhaustion
+* Slow database
+* Network latency
+* GC pauses
+
+Include practical troubleshooting commands and examples.
+
+⸻
+
+49. AWS Observability
+
+Explain the complete observability model:
+
+Application
+    ↓
+Logs
+    ↓
+CloudWatch
+    ↓
+Metrics
+    ↓
+Alarms
+    ↓
+Alerts
+
+And distributed tracing:
+
+Client
+  ↓
+Load Balancer
+  ↓
+Service A
+  ↓
+Service B
+  ↓
+Database
+
+Learn
+
+* Logs
+* Metrics
+* Traces
+* Correlation IDs
+* Request IDs
+* Structured logging
+* Dashboards
+* Alerts
+* SLO
+* SLA
+* SLI
+
+⸻
+
+50. Production Troubleshooting
+
+Explain how an SDE2 should investigate:
+
+Application
+
+* 500 errors
+* 502 errors
+* 503 errors
+* 504 errors
+* Timeouts
+* High latency
+
+Infrastructure
+
+* EC2 unavailable
+* Container crashes
+* OOM
+* CPU spikes
+* Disk full
+* Network failures
+
+Database
+
+* Slow queries
+* Connection exhaustion
+* Deadlocks
+* Replication lag
+* Lock contention
+
+AWS
+
+* IAM AccessDenied
+* Security Group blocking traffic
+* NACL blocking traffic
+* Wrong route table
+* NAT failure
+* DNS failure
+* ALB unhealthy targets
+
+For every problem, provide a step-by-step debugging methodology.
+
+⸻
+
+51. AWS Cost Optimization
+
+EC2
+
+* Right-sizing
+* Reserved Instances
+* Savings Plans
+* Spot
+
+Storage
+
+* S3 lifecycle
+* EBS optimization
+* Snapshot cleanup
+
+Database
+
+* Instance sizing
+* Read replicas
+* Storage optimization
+
+Networking
+
+* NAT Gateway costs
+* Data transfer costs
+* Cross-AZ traffic
+* Cross-region traffic
+
+Include realistic cost-optimization scenarios.
+
+⸻
+
+52. AWS Security Architecture
+
+Application Security
+
+* Authentication
+* Authorization
+* Encryption
+* Secrets management
+
+Network Security
+
+* VPC
+* Security Groups
+* NACL
+* Private subnets
+* VPC endpoints
+
+Data Security
+
+* Encryption at rest
+* Encryption in transit
+* KMS
+* Key rotation
+
+Identity
+
+* IAM
+* STS
+* Roles
+* Least privilege
+
+Threat Protection
+
+* WAF
+* Shield
+* GuardDuty
+* Inspector
+* Security Hub
+
+⸻
+
+53. AWS Well-Architected Framework
+
+Explain all six pillars in detail:
+
+1. Operational Excellence
+2. Security
+3. Reliability
+4. Performance Efficiency
+5. Cost Optimization
+6. Sustainability
+
+For each pillar:
+
+* Explain the concept
+* AWS services involved
+* Best practices
+* Common mistakes
+* SDE2 design considerations
+* Example architecture
+
+⸻
+
+54. AWS Architecture Design Patterns
+
+Basic Web Application
+
+Route53
+   ↓
+CloudFront
+   ↓
+ALB
+   ↓
+ECS
+   ↓
+RDS
+
+Scalable Application
+
+Route53
+   ↓
+CloudFront
+   ↓
+ALB
+   ↓
+ECS Auto Scaling
+   ↓
+Redis
+   ↓
+RDS
+
+Async Architecture
+
+API
+ ↓
+SQS
+ ↓
+Workers
+ ↓
+Database
+
+Event-Driven Architecture
+
+Service A
+   ↓
+EventBridge
+   ↓
+Service B
+   ↓
+SQS
+   ↓
+Lambda
+
+File Processing
+
+Client
+ ↓
+Presigned S3 URL
+ ↓
+S3
+ ↓
+Event
+ ↓
+SQS
+ ↓
+Lambda/ECS
+ ↓
+Database
+
+For each architecture explain:
+
+* Components
+* Request flow
+* Data flow
+* Failure scenarios
+* Scaling
+* Security
+* Monitoring
+* Cost
+* Trade-offs
+* Why each AWS service was selected
+
+⸻
+
+55. AWS SDE2 Decision Making
+
+Create detailed decision tables for:
+
+* EC2 vs ECS vs EKS vs Lambda
+* ALB vs NLB
+* SQS vs SNS vs EventBridge vs Kafka
+* RDS vs Aurora vs DynamoDB
+* Redis vs database caching
+* S3 vs EBS vs EFS
+* API Gateway vs ALB
+* ECS vs EKS
+* CloudFront vs ALB
+* Secrets Manager vs Parameter Store
+* Multi-AZ vs Multi-Region
+* Synchronous vs asynchronous processing
+* REST vs event-driven architecture
+
+For every comparison include:
+
+* What it is
+* How it works
+* Advantages
+* Disadvantages
+* When to use
+* When not to use
+* Cost considerations
+* Scalability
+* Availability
+* Operational complexity
+* Real-world example
+* SDE2 interview question
+
+⸻
+
+56. SDE2 Production Scenarios
+
+Create detailed case studies such as:
+
+Scenario 1
+
+Spring Boot API suddenly receives 10x traffic.
+
+Scenario 2
+
+Database CPU reaches 100%.
+
+Scenario 3
+
+API latency increases from 100ms to 2 seconds.
+
+Scenario 4
+
+One Availability Zone goes down.
+
+Scenario 5
+
+An SQS message is processed multiple times.
+
+Scenario 6
+
+A payment is accidentally processed twice.
+
+Scenario 7
+
+An EC2 instance becomes unreachable.
+
+Scenario 8
+
+ECS containers repeatedly restart.
+
+Scenario 9
+
+A Spring Boot application gets OutOfMemoryError.
+
+Scenario 10
+
+An AWS API returns AccessDenied.
+
+Scenario 11
+
+A service receives 504 Gateway Timeout.
+
+Scenario 12
+
+Redis goes down.
+
+Scenario 13
+
+Kafka consumer lag continuously increases.
+
+Scenario 14
+
+An S3 bucket accidentally becomes public.
+
+Scenario 15
+
+AWS bill suddenly increases.
+
+For every scenario explain:
+
+* Symptoms
+* Possible causes
+* Investigation steps
+* AWS tools to use
+* Logs/metrics to inspect
+* Root cause
+* Fix
+* Prevention
+
+⸻
+
+57. Final AWS SDE2 Cheat Sheet
+
+Create a concise but comprehensive cheat sheet covering:
+
+* Important AWS services
+* Important commands
+* Important terminology
+* Important architecture patterns
+* Important ports
+* Networking concepts
+* Security concepts
+* Scaling concepts
+* Reliability concepts
+* Monitoring concepts
+
+⸻
+
+58. AWS Service Selection Guide
+
+Create a large decision table answering questions like:
+
+Need object storage → ?
+
+Need relational database → ?
+
+Need NoSQL → ?
+
+Need caching → ?
+
+Need asynchronous processing → ?
+
+Need pub/sub → ?
+
+Need event routing → ?
+
+Need containers → ?
+
+Need serverless compute → ?
+
+Need DNS → ?
+
+Need CDN → ?
+
+Need secrets → ?
+
+Need encryption → ?
+
+Need monitoring → ?
+
+Need distributed tracing → ?
+
+Need threat detection → ?
+
+Need vulnerability scanning → ?
+
+⸻
+
+59. Production Troubleshooting Guide
+
+Create a quick-reference troubleshooting matrix:
+
+Problem	Likely Causes	First Things to Check	AWS Tools	Possible Fix
+502	…	…	…	…
+503	…	…	…	…
+504	…	…	…	…
+High CPU	…	…	…	…
+OOM	…	…	…	…
+DB slow	…	…	…	…
+AccessDenied	…	…	…	…
+SQS duplicates	…	…	…	…
+Kafka lag	…	…	…	…
+
+⸻
+
+60. Security Checklist
+
+Create a production security checklist covering:
+
+* IAM
+* Credentials
+* MFA
+* Secrets
+* Encryption
+* KMS
+* VPC
+* Security Groups
+* NACL
+* Public vs private subnet
+* S3
+* RDS
+* EC2
+* ECS
+* ECR
+* APIs
+* WAF
+* CloudTrail
+* GuardDuty
+* Logging
+* Monitoring
+* Vulnerability scanning
+* Least privilege
+
+⸻
+
+61. Cost Optimization Checklist
+
+Create a practical checklist covering:
+
+* EC2
+* ECS
+* RDS
+* S3
+* NAT Gateway
+* CloudFront
+* Data transfer
+* EBS
+* Snapshots
+* Lambda
+* DynamoDB
+* CloudWatch
+* Logs
+* Kafka/MSK
+
+⸻
+
+62. SDE2 Interview Question Bank
+
+Create questions grouped into:
+
+Beginner
+
+AWS fundamentals
+
+Intermediate
+
+Individual services
+
+Advanced
+
+Architecture
+
+Production
+
+Troubleshooting
+
+System Design
+
+AWS architecture
+
+Security
+
+IAM/network/security
+
+Performance
+
+Scaling/optimization
+
+Scenario-Based
+
+Real production incidents
+
+For each important question provide:
+
+* Question
+* What interviewer is testing
+* Strong answer
+* Common wrong answer
+* Follow-up questions
+
+⸻
+
+63. Hands-On Project Roadmap
+
+Create a progressive practical roadmap:
+
+Project 1
+
+Deploy a basic Spring Boot application to EC2.
+
+Project 2
+
+Spring Boot + RDS + S3.
+
+Project 3
+
+Spring Boot + Redis + RDS + ALB.
+
+Project 4
+
+Docker + ECR + ECS Fargate.
+
+Project 5
+
+Spring Boot + SQS + worker service.
+
+Project 6
+
+Event-driven architecture with EventBridge/SNS/SQS.
+
+Project 7
+
+Kafka/MSK-based architecture.
+
+Project 8
+
+Production-grade microservices architecture.
+
+For each project provide:
+
+* Architecture
+* AWS services
+* Java/Spring Boot components
+* Implementation steps
+* Security requirements
+* Monitoring
+* Deployment
+* Failure scenarios
+* Scaling considerations
+* What I learn from the project
+
+⸻
+
+FINAL DOCUMENT REQUIREMENTS
+
+The resulting Markdown file should feel like a professional AWS SDE2 reference book, not a short tutorial.
+
+Use this hierarchy:
+
+# AWS SDE2 — Java Backend Developer Complete Guide
+## 1. AWS Fundamentals
+### 1.1 Cloud Computing
+#### What is Cloud Computing?
+...
+#### IaaS vs PaaS vs SaaS
+| Feature | IaaS | PaaS | SaaS |
+|---|---|---|---|
+### 1.2 AWS Global Infrastructure
+...
+## 2. IAM
+### 2.1 IAM Basics
+...
+
+Use Mermaid diagrams when architecture or request flow benefits from visualization:
+
+flowchart LR
+    Client --> CloudFront
+    CloudFront --> ALB
+    ALB --> ECS
+    ECS --> Redis
+    ECS --> RDS
+
+Use code blocks correctly:
+
+@RestController
+@RequestMapping("/orders")
+public class OrderController {
+    // example
+}
+
+Use AWS CLI examples:
+
+aws s3 ls
+aws ec2 describe-instances
+
+Use configuration examples where useful:
+
+spring:
+  datasource:
+    url: jdbc:postgresql://example:5432/orders
+
+Use callouts such as:
+
+SDE2 Interview Tip: Explain the trade-off rather than simply naming the AWS service.
+
+Production Warning: Never hardcode AWS access keys inside source code or Docker images.
+
+Best Practice: Prefer IAM roles and temporary credentials over long-lived access keys.
+
+QUALITY BAR
+
+Before finishing, internally verify that:
+
+1. Every numbered section above exists.
+2. Every listed topic and subtopic is covered.
+3. No major AWS concept relevant to a Java backend SDE2 has been silently omitted.
+4. Examples are technically meaningful.
+5. Architecture diagrams are readable.
+6. Code blocks have correct language identifiers.
+7. Comparisons use tables where appropriate.
+8. Security is addressed throughout.
+9. Production considerations are addressed throughout.
+10. SDE2-level trade-offs are explained.
+11. The document is useful both for learning and interview revision.
+12. The final document can be saved directly as a .md file without requiring formatting cleanup.
+
+Do not shorten the material merely to save tokens. Prioritize completeness, correctness, practical understanding, and SDE2-level depth.

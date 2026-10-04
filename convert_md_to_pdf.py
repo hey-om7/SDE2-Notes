@@ -470,29 +470,41 @@ body {{
 .cover {{
     page-break-after: always;
     height: 100vh;
-    background: linear-gradient(150deg, {p['ink']} 0%, {p['ink_soft']} 55%, #2E4053 100%);
-    color: #fff;
-    padding: 48mm 22mm 20mm 22mm;
+    background: #ffffff;
+    color: {p['ink']};
+    padding: 46mm 24mm 24mm 24mm;
     box-sizing: border-box;
     position: relative;
+    border-top: 10mm solid {p['orange']};
+}}
+.cover .kicker {{
+    font-size: 10pt;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: {p['orange_dark']};
+    margin-bottom: 7mm;
 }}
 .cover .bar {{
-    width: 70mm; height: 6px; background: {p['orange']};
-    border-radius: 3px; margin-bottom: 14mm;
+    width: 46mm; height: 4px; background: {p['orange']};
+    border-radius: 2px; margin-bottom: 10mm;
 }}
 .cover h1 {{
-    font-size: 30pt; line-height: 1.15; margin: 0 0 8mm 0;
-    color: #fff; border: none; padding: 0;
+    font-size: 30pt; line-height: 1.18; margin: 0 0 7mm 0;
+    color: {p['ink']}; border: none; padding: 0; font-weight: 800;
+    break-before: avoid;
 }}
 .cover .subtitle {{
-    font-size: 13pt; color: #D5DBDB; font-weight: 400; margin-bottom: 24mm;
+    font-size: 13.5pt; color: {p['muted']}; font-weight: 400;
+    line-height: 1.4; max-width: 150mm;
 }}
 .cover .meta {{
-    position: absolute; bottom: 22mm; left: 22mm; right: 22mm;
-    font-size: 9.5pt; color: #AEB6BF;
-    border-top: 1px solid rgba(255,255,255,0.25); padding-top: 6mm;
+    position: absolute; bottom: 26mm; left: 24mm; right: 24mm;
+    font-size: 9.5pt; color: {p['muted']};
+    border-top: 1.5px solid {p['border']}; padding-top: 6mm;
 }}
-.cover .meta .accent {{ color: {p['orange']}; font-weight: 600; }}
+.cover .meta .accent {{ color: {p['orange_dark']}; font-weight: 700; }}
+.cover .meta-row {{ margin-top: 2mm; }}
 
 /* ---------- Headings ---------- */
 h1, h2, h3, h4 {{
@@ -715,23 +727,27 @@ blockquote p:last-child {{ margin-bottom: 0; }}
 # --------------------------------------------------------------------------- #
 # Cover page
 # --------------------------------------------------------------------------- #
-def build_cover(doc_title: str, doc_subtitle: str, section_count: int) -> str:
+def build_cover(doc_title: str, doc_subtitle: str, section_count: int,
+                accent_label: str = "") -> str:
     import datetime
     today = datetime.date.today().strftime("%B %Y")
-    sections = f"{section_count} sections &nbsp;·&nbsp; " if section_count else ""
+    sections = f"{section_count} sections" if section_count else ""
     subtitle_html = (
         f'<div class="subtitle">{html.escape(doc_subtitle)}</div>'
         if doc_subtitle else ""
     )
+    meta_bits = [b for b in ("Fundamentals → Production depth", sections, today) if b]
+    meta_line = " &nbsp;·&nbsp; ".join(meta_bits)
+    label = html.escape(accent_label) if accent_label else "Developer Guide"
     return f"""
 <div class="cover">
+  <div class="kicker">Technical Reference</div>
   <div class="bar"></div>
   <h1>{html.escape(doc_title)}</h1>
   {subtitle_html}
   <div class="meta">
-    <span class="accent">Technical Reference</span> &nbsp;·&nbsp;
-    Fundamentals → Production depth &nbsp;·&nbsp;
-    {sections}{today}
+    <div class="meta-row"><span class="accent">{label}</span></div>
+    <div class="meta-row">{meta_line}</div>
   </div>
 </div>
 """
@@ -800,7 +816,7 @@ def convert(input_path: Path, output_path: Path, render_mermaid: bool,
 <html lang="en">
 <head><meta charset="utf-8"><title>{html.escape(doc_title)}</title></head>
 <body>
-{build_cover(doc_title, doc_subtitle, section_count)}
+{build_cover(doc_title, doc_subtitle, section_count, footer_label)}
 <div class="content">
 {body_html}
 </div>

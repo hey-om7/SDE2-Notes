@@ -1,0 +1,2795 @@
+I want you to create a complete, detailed, production-oriented Spring Boot study guide in Markdown (.md) for a Java Backend Developer with approximately 3 years of professional experience who is preparing to work at an SDE2 level.
+
+The purpose of this document is NOT simply to teach me Spring Boot from beginner to advanced.
+
+The purpose is to make me capable of independently developing, reviewing, debugging, testing, optimizing, securing, deploying, and maintaining production-grade Java/Spring Boot backend services at an SDE2 level.
+
+I already understand Java programming and basic backend development. Therefore, do not waste excessive space explaining extremely basic Java concepts. Focus on how Java concepts are applied inside real Spring Boot systems and what an SDE2 is expected to understand.
+
+The final output must be a single, well-structured Markdown document that I can save directly as something like:
+
+Spring_Boot_SDE2_Java_Backend_Notes.md
+
+⸻
+
+IMPORTANT INSTRUCTIONS
+
+1. Teach for SDE2, not beginner level
+
+For every important concept, explain:
+
+1. What it is
+2. Why it exists
+3. What problem it solves
+4. How it works internally at a practical level
+5. How Spring Boot uses it
+6. How I would use it in a real backend project
+7. When I should use it
+8. When I should NOT use it
+9. Common mistakes
+10. Production considerations
+11. Performance implications
+12. Security implications where relevant
+13. Failure scenarios
+14. SDE2-level interview questions
+
+Do not stop at definitions.
+
+For example, don’t simply say:
+
+@Transactional manages database transactions.
+
+Instead explain:
+
+* How Spring implements it
+* Proxies
+* Transaction boundaries
+* Propagation
+* Isolation
+* Rollback
+* Connection management
+* Self-invocation problems
+* What happens when an external API is called inside a transaction
+* Why long transactions are dangerous
+* How it behaves in a production microservice
+* What an SDE2 should consider when designing transaction boundaries
+
+⸻
+
+2. Focus on things I will actually use
+
+Prioritize concepts that a 3-year Java backend engineer moving to SDE2 will realistically encounter.
+
+Do NOT turn this into a documentation dump.
+
+Avoid spending large amounts of space on:
+
+* Obscure Spring modules
+* Rare annotations
+* Features almost never used in production
+* Legacy Spring technologies unless understanding them is useful
+* Certification-style trivia
+
+Focus heavily on:
+
+* Spring Core
+* Spring Boot
+* REST APIs
+* Spring MVC
+* Validation
+* Exception handling
+* Spring Data JPA
+* Hibernate
+* Transactions
+* Database performance
+* Spring Security
+* JWT
+* OAuth2/OIDC
+* Redis
+* Kafka
+* SQS/messaging
+* REST clients
+* Resilience
+* Testing
+* Docker integration
+* Configuration
+* Observability
+* Performance
+* Production troubleshooting
+* Microservices
+* Distributed systems
+* Deployment
+
+⸻
+
+3. Use Java/Spring Boot examples extensively
+
+Whenever a concept can be demonstrated using code, provide a realistic example.
+
+Prefer:
+
+* Java
+* Spring Boot
+* Spring Data JPA
+* Spring Security
+* Redis
+* Kafka
+* PostgreSQL/MySQL
+* Docker
+* Maven
+
+Examples should resemble real production code rather than toy examples.
+
+For example:
+
+@Service
+public class OrderService {
+    private final OrderRepository orderRepository;
+    public OrderService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
+    @Transactional
+    public OrderResponse createOrder(CreateOrderRequest request) {
+        // business logic
+    }
+}
+
+Then explain:
+
+* Why constructor injection is preferred
+* Why the service layer owns the transaction
+* What @Transactional actually does
+* What happens if createOrder() calls another service
+* What happens if a database exception occurs
+* What happens if an external API is called inside the transaction
+* What happens if this method is called through self-invocation
+* How this should be tested
+
+⸻
+
+4. Use diagrams wherever they improve understanding
+
+Use Mermaid diagrams for architecture and request/data flows.
+
+Example:
+
+flowchart LR
+    Client --> Controller
+    Controller --> Service
+    Service --> Repository
+    Repository --> Database
+
+For more complex concepts, use diagrams such as:
+
+sequenceDiagram
+    Client->>API: POST /orders
+    API->>Service: createOrder()
+    Service->>Database: INSERT order
+    Database-->>Service: Order
+    Service-->>API: OrderResponse
+    API-->>Client: 201 Created
+
+Use diagrams for:
+
+* Request flow
+* Security filters
+* Transactions
+* Kafka
+* Redis caching
+* Microservices
+* Authentication
+* Distributed tracing
+* Resilience
+* Database interactions
+
+⸻
+
+5. Proper Markdown formatting is mandatory
+
+Use:
+
+# Major Section
+## Topic
+### Subtopic
+#### Detailed Concept
+
+Use Markdown tables for comparisons.
+
+Use appropriate code fences:
+
+// Java
+# Spring configuration
+-- SQL
+# Shell
+{
+  "example": "value"
+}
+
+Use callouts such as:
+
+Important: …
+
+Production Warning: …
+
+SDE2 Interview Tip: …
+
+Best Practice: …
+
+Do not put everything into giant paragraphs.
+
+⸻
+
+6. Every major section should end with
+
+## Key Takeaways
+## Common Mistakes
+## Production Considerations
+## SDE2 Interview Questions
+## Practical Exercise
+
+⸻
+
+COMPLETE CURRICULUM
+
+Cover ALL of the following sections.
+
+Do not silently skip anything.
+
+⸻
+
+1. Spring Ecosystem and Spring Boot Fundamentals
+
+Explain:
+
+* What Spring Framework is
+* Why Spring exists
+* Problems Spring solves
+* Spring vs Spring Boot
+* Spring ecosystem
+* Spring Core
+* Spring MVC
+* Spring Data
+* Spring Security
+* Spring AOP
+* Spring Test
+* Spring Cloud
+* Spring Batch
+* Spring Integration
+
+Explain which modules a typical SDE2 Java backend engineer actually needs.
+
+Explain:
+
+* Convention over configuration
+* Auto-configuration
+* Starter dependencies
+* Embedded server
+* Production-ready application
+* Dependency management
+
+Explain what happens when:
+
+java -jar application.jar
+
+starts.
+
+Show the Spring Boot startup lifecycle:
+
+JVM starts
+   ↓
+SpringApplication
+   ↓
+Environment created
+   ↓
+ApplicationContext created
+   ↓
+Bean definitions discovered
+   ↓
+Auto-configuration
+   ↓
+Beans instantiated
+   ↓
+Embedded server starts
+   ↓
+ApplicationReadyEvent
+
+Explain each step at a practical level.
+
+⸻
+
+2. IoC, Dependency Injection and Beans
+
+Teach deeply:
+
+* Inversion of Control
+* Dependency Injection
+* ApplicationContext
+* BeanFactory
+* Bean creation
+* Component scanning
+
+Explain:
+
+* @Component
+* @Service
+* @Repository
+* @Controller
+* @RestController
+* @Configuration
+* @Bean
+
+Explain dependency injection:
+
+* Constructor injection
+* Setter injection
+* Field injection
+
+Clearly explain why constructor injection is generally preferred.
+
+Cover:
+
+* Bean scopes
+* Singleton
+* Prototype
+* Request
+* Session
+* Application
+* WebSocket
+
+Explain bean lifecycle:
+
+* Creation
+* Dependency injection
+* Initialization
+* Use
+* Destruction
+
+Cover:
+
+* @PostConstruct
+* @PreDestroy
+* InitializingBean
+* DisposableBean
+
+Explain:
+
+* @Primary
+* @Qualifier
+* @Lazy
+* ObjectProvider
+
+Explain:
+
+* Multiple implementations
+* Conditional dependencies
+* Circular dependencies
+* Bean initialization failures
+* Thread safety of singleton beans
+
+Include realistic examples.
+
+⸻
+
+3. Spring Boot Auto-Configuration
+
+Explain deeply but practically:
+
+* @SpringBootApplication
+* @EnableAutoConfiguration
+* Component scanning
+* Auto-configuration
+
+Explain how Spring Boot decides:
+
+“I see PostgreSQL + Spring Data JPA, so I should configure a DataSource/JPA infrastructure.”
+
+Cover:
+
+* Conditional beans
+* @ConditionalOnClass
+* @ConditionalOnMissingBean
+* @ConditionalOnProperty
+
+Explain how to debug auto-configuration.
+
+Explain:
+
+* Why an auto-configured bean may not exist
+* How to override auto-configuration
+* When explicit configuration is better
+
+⸻
+
+4. Configuration and Profiles
+
+Teach:
+
+* application.properties
+* application.yml
+* Environment variables
+* Command-line arguments
+* Profile-specific configuration
+
+Explain:
+
+* application-dev.yml
+* application-test.yml
+* application-prod.yml
+
+Teach:
+
+* @Value
+* @ConfigurationProperties
+
+Explain why @ConfigurationProperties is often better for grouped configuration.
+
+Cover:
+
+* External configuration
+* Secret management
+* Configuration validation
+* Environment separation
+
+Explain integration with:
+
+* Docker
+* AWS Parameter Store
+* AWS Secrets Manager
+* Kubernetes ConfigMaps
+* Kubernetes Secrets
+
+Show good and bad examples.
+
+⸻
+
+5. Spring MVC and HTTP Request Lifecycle
+
+Explain how an HTTP request travels through Spring Boot.
+
+Show:
+
+Client
+  ↓
+Embedded Server
+  ↓
+Servlet Filter
+  ↓
+DispatcherServlet
+  ↓
+Handler Mapping
+  ↓
+Controller
+  ↓
+Service
+  ↓
+Repository
+  ↓
+Database
+
+Explain:
+
+* DispatcherServlet
+* HandlerMapping
+* HandlerAdapter
+* Controller
+* Message converters
+* Jackson
+* Response handling
+
+Teach:
+
+* @Controller
+* @RestController
+* @RequestMapping
+* @GetMapping
+* @PostMapping
+* @PutMapping
+* @PatchMapping
+* @DeleteMapping
+
+⸻
+
+6. REST API Development
+
+Teach:
+
+* REST principles
+* Resources
+* HTTP methods
+* HTTP status codes
+* Request headers
+* Response headers
+* Request body
+* Response body
+
+Cover:
+
+* @PathVariable
+* @RequestParam
+* @RequestBody
+* @RequestHeader
+* @CookieValue
+
+Explain:
+
+* ResponseEntity
+* DTOs
+* Request DTOs
+* Response DTOs
+
+Teach correct usage of:
+
+* 200
+* 201
+* 202
+* 204
+* 400
+* 401
+* 403
+* 404
+* 409
+* 422
+* 429
+* 500
+* 502
+* 503
+* 504
+
+Give examples of when each is appropriate.
+
+⸻
+
+7. REST API Design at SDE2 Level
+
+Teach:
+
+* Resource naming
+* URI design
+* Nested resources
+* Pagination
+* Filtering
+* Sorting
+* Searching
+* API versioning
+* Backward compatibility
+
+Compare:
+
+* Offset pagination
+* Cursor pagination
+* Keyset pagination
+
+Explain when each should be used.
+
+Teach:
+
+* Idempotency
+* Idempotency keys
+* Duplicate requests
+* Safe retries
+
+Explain:
+
+* ETags
+* Cache-Control
+* Conditional requests
+
+Teach API evolution and how to avoid breaking clients.
+
+⸻
+
+8. DTOs and Mapping
+
+Explain:
+
+* Entity vs DTO
+* Request DTO
+* Response DTO
+* Why entities shouldn’t normally be exposed directly
+
+Cover:
+
+* Manual mapping
+* MapStruct
+* Validation on DTOs
+
+Explain problems caused by exposing JPA entities directly:
+
+* Lazy loading
+* Sensitive fields
+* Coupling
+* Serialization problems
+* API contract instability
+
+⸻
+
+9. Jackson and JSON
+
+Teach:
+
+* Serialization
+* Deserialization
+* ObjectMapper
+* JSON mapping
+
+Cover:
+
+* @JsonProperty
+* @JsonIgnore
+* @JsonInclude
+* @JsonFormat
+* Custom serializers
+* Custom deserializers
+
+Explain:
+
+* Date/time handling
+* Enum serialization
+* Null handling
+* Unknown fields
+
+Discuss common JSON/API compatibility problems.
+
+⸻
+
+10. Exception Handling
+
+Teach:
+
+* Java exceptions
+* RuntimeException
+* Business exceptions
+* Infrastructure exceptions
+
+Explain:
+
+* @ExceptionHandler
+* @ControllerAdvice
+* @RestControllerAdvice
+
+Create a consistent production error model, for example:
+
+{
+  "code": "ORDER_NOT_FOUND",
+  "message": "Order was not found",
+  "timestamp": "2026-10-04T10:00:00Z",
+  "path": "/api/orders/123",
+  "traceId": "abc123"
+}
+
+Explain:
+
+* Validation errors
+* Database exceptions
+* External API exceptions
+* Authentication exceptions
+
+Explain what should NOT be exposed to clients.
+
+⸻
+
+11. Bean Validation
+
+Teach:
+
+* Jakarta Bean Validation
+* @Valid
+* @Validated
+
+Cover:
+
+* @NotNull
+* @NotBlank
+* @NotEmpty
+* @Size
+* @Min
+* @Max
+* @Positive
+* @Email
+* @Pattern
+
+Explain:
+
+* Nested validation
+* Custom validation annotations
+* ConstraintValidator
+* Validation groups
+
+Show how validation errors should be returned from REST APIs.
+
+⸻
+
+12. Spring Data JPA
+
+Teach deeply.
+
+Cover:
+
+* JPA
+* Hibernate
+* Entity
+* EntityManager
+* Persistence Context
+* Repository
+
+Explain:
+
+* @Entity
+* @Table
+* @Id
+* @GeneratedValue
+* @Column
+
+Explain primary keys and ID generation strategies.
+
+⸻
+
+13. Entity Relationships
+
+Teach:
+
+* @OneToOne
+* @OneToMany
+* @ManyToOne
+* @ManyToMany
+
+Explain:
+
+* Owning side
+* mappedBy
+* Foreign keys
+* Join tables
+
+Cover:
+
+* Cascade
+* CascadeType
+* Orphan removal
+
+Explain the dangers of blindly using:
+
+cascade = CascadeType.ALL
+
+Explain:
+
+* Lazy loading
+* Eager loading
+
+Clearly explain why lazy loading is usually preferred.
+
+⸻
+
+14. Hibernate Internals Required for SDE2
+
+Teach:
+
+* Persistence Context
+* First-level cache
+* Dirty checking
+* Flush
+* Entity lifecycle
+
+Explain:
+
+Transient
+   ↓
+Persistent
+   ↓
+Detached
+   ↓
+Removed
+
+Explain what happens when an entity changes without explicitly calling save().
+
+⸻
+
+15. N+1 Query Problem
+
+Explain N+1 in detail.
+
+Show a bad example.
+
+Show how to identify it.
+
+Show multiple solutions:
+
+* Fetch join
+* EntityGraph
+* Batch fetching
+* DTO projection
+* Explicit queries
+
+Explain why blindly using EAGER is not a solution.
+
+Include SQL examples.
+
+⸻
+
+16. JPA Queries
+
+Teach:
+
+* Derived queries
+* JPQL
+* Native SQL
+* Criteria API
+* Specifications
+
+Cover:
+
+* JOIN
+* JOIN FETCH
+* GROUP BY
+* HAVING
+* Aggregations
+
+Teach:
+
+* Pagination
+* Sorting
+* Dynamic filtering
+
+Explain:
+
+* Projections
+* DTO projections
+* Interface projections
+
+⸻
+
+17. Database Transactions
+
+Teach deeply:
+
+* ACID
+* Atomicity
+* Consistency
+* Isolation
+* Durability
+
+Explain:
+
+@Transactional
+
+Cover:
+
+* Transaction boundaries
+* Commit
+* Rollback
+* Rollback rules
+
+Explain propagation:
+
+* REQUIRED
+* REQUIRES_NEW
+* SUPPORTS
+* NOT_SUPPORTED
+* MANDATORY
+* NEVER
+* NESTED
+
+Explain isolation:
+
+* READ_UNCOMMITTED
+* READ_COMMITTED
+* REPEATABLE_READ
+* SERIALIZABLE
+
+Explain:
+
+* Dirty reads
+* Non-repeatable reads
+* Phantom reads
+* Lost updates
+* Deadlocks
+
+⸻
+
+18. @Transactional Internals
+
+This must be SDE2-level.
+
+Explain:
+
+* Spring proxies
+* AOP
+* Proxy interception
+* Transaction creation
+* Transaction commit
+* Rollback
+
+Explain self-invocation:
+
+public void methodA() {
+    methodB();
+}
+@Transactional
+public void methodB() {
+}
+
+Explain why the expected transaction behavior may not occur.
+
+Explain why this is dangerous:
+
+@Transactional
+public void processPayment() {
+    savePayment();
+    callExternalPaymentProvider();
+    updatePayment();
+}
+
+Explain:
+
+* Long transactions
+* DB connection retention
+* Locks
+* Timeouts
+* External API failure
+* Distributed transaction problems
+
+Show better designs.
+
+⸻
+
+19. Database Connection Pooling
+
+Teach HikariCP.
+
+Cover:
+
+* Connection pool
+* Maximum pool size
+* Minimum idle
+* Connection timeout
+* Idle timeout
+* Maximum lifetime
+
+Explain:
+
+HTTP Requests
+      ↓
+Tomcat Thread Pool
+      ↓
+HikariCP
+      ↓
+Database
+
+Explain:
+
+* Connection pool exhaustion
+* Slow queries
+* Connection leaks
+* Too many connections
+* Database max connection limits
+
+Give a practical configuration example.
+
+⸻
+
+20. Database Performance
+
+Teach the Spring/Hibernate side of:
+
+* Indexes
+* Query plans
+* Slow queries
+* Pagination
+* N+1
+* Batch operations
+* Projections
+
+Explain:
+
+* Why SELECT * can be problematic
+* Why fetching too much data is dangerous
+* Offset pagination problems
+* Keyset pagination
+
+Explain how to diagnose slow DB queries.
+
+⸻
+
+21. Spring Security
+
+Teach the architecture deeply enough for SDE2.
+
+Explain:
+
+Request
+  ↓
+Security Filters
+  ↓
+Authentication
+  ↓
+SecurityContext
+  ↓
+Authorization
+  ↓
+Controller
+
+Cover:
+
+* Authentication
+* Authorization
+* Principal
+* Authorities
+* Roles
+* Permissions
+
+Teach:
+
+* SecurityFilterChain
+* AuthenticationManager
+* AuthenticationProvider
+* SecurityContext
+
+⸻
+
+22. JWT Authentication
+
+Explain JWT thoroughly.
+
+Cover:
+
+* Header
+* Payload
+* Signature
+* Claims
+* Expiration
+
+Explain:
+
+Login
+ ↓
+Authentication
+ ↓
+Access Token
+ ↓
+Client
+ ↓
+API Request
+ ↓
+JWT Validation
+ ↓
+Authorization
+
+Teach:
+
+* Access tokens
+* Refresh tokens
+* Token expiration
+* Token rotation
+* Token revocation
+
+Explain:
+
+* Symmetric signing
+* RSA/public-private key signing
+
+Cover:
+
+* Token theft
+* Replay attacks
+* Weak secrets
+* Long-lived tokens
+* Sensitive data inside JWT
+
+⸻
+
+23. OAuth2 and OpenID Connect
+
+Teach:
+
+* OAuth2
+* OIDC
+* Authorization Server
+* Resource Server
+* Client
+* Resource Owner
+
+Cover:
+
+* Authorization Code
+* Client Credentials
+* Refresh Token
+
+Explain:
+
+* Access Token
+* ID Token
+* Refresh Token
+
+Show how Spring Boot acts as:
+
+* OAuth2 Client
+* Resource Server
+
+Use practical examples such as:
+
+* Google login
+* Cognito
+* Okta
+* Keycloak
+
+⸻
+
+24. Authorization
+
+Teach:
+
+* Role-based access control
+* Permission-based access control
+* Method-level security
+
+Explain:
+
+@PreAuthorize("hasRole('ADMIN')")
+
+and more realistic authorization expressions.
+
+Explain why authentication alone does not provide authorization.
+
+Explain common privilege escalation mistakes.
+
+⸻
+
+25. CORS, CSRF and Security Headers
+
+Teach:
+
+CORS
+
+* Same-origin policy
+* Origins
+* Preflight
+* OPTIONS
+* Allowed methods
+* Allowed headers
+
+CSRF
+
+* What it is
+* Cookie authentication
+* Stateless JWT APIs
+* When CSRF protection matters
+
+Security Headers
+
+* HSTS
+* CSP
+* X-Content-Type-Options
+* Referrer-Policy
+
+Use a React/Next.js frontend + Spring Boot backend example.
+
+⸻
+
+26. Spring AOP
+
+Explain:
+
+* Aspect
+* Join point
+* Pointcut
+* Advice
+* Proxy
+
+Cover:
+
+* Before
+* After
+* Around
+* After returning
+* After throwing
+
+Explain practical uses:
+
+* Logging
+* Metrics
+* Auditing
+* Transactions
+
+Explain JDK proxies vs CGLIB at a practical level.
+
+⸻
+
+27. Spring Caching
+
+Teach:
+
+* @Cacheable
+* @CachePut
+* @CacheEvict
+* Cache key
+
+Explain:
+
+Request
+ ↓
+Spring Service
+ ↓
+Redis
+ ├── Hit → Response
+ └── Miss
+       ↓
+    Database
+       ↓
+      Redis
+       ↓
+    Response
+
+Teach:
+
+* Cache-aside
+* TTL
+* Cache invalidation
+* Cache stampede
+* Cache penetration
+* Hot keys
+
+Explain consistency problems.
+
+⸻
+
+28. Redis with Spring Boot
+
+Teach:
+
+* RedisTemplate
+* Spring Data Redis
+* Serialization
+* TTL
+* Redis connection pooling
+
+Cover practical use cases:
+
+* Caching
+* Sessions
+* Rate limiting
+* Distributed locks
+* Idempotency
+
+Explain when Redis should NOT be used.
+
+⸻
+
+29. Kafka with Spring Boot
+
+Teach Kafka fundamentals:
+
+* Broker
+* Topic
+* Partition
+* Producer
+* Consumer
+* Consumer group
+* Offset
+* Replication
+
+Then Spring Kafka:
+
+* KafkaTemplate
+* @KafkaListener
+* Producer configuration
+* Consumer configuration
+* Acknowledgment
+
+Explain:
+
+* Consumer groups
+* Rebalancing
+* Consumer lag
+* Partition ordering
+
+⸻
+
+30. Kafka Reliability
+
+Teach:
+
+* At-least-once
+* At-most-once
+* Exactly-once concept
+
+Explain why duplicate messages happen.
+
+Teach:
+
+* Idempotent consumers
+* Retry
+* Dead-letter topics
+* Backoff
+* Poison messages
+
+Explain when Kafka is appropriate versus:
+
+* SQS
+* SNS
+* EventBridge
+
+⸻
+
+31. Messaging and Asynchronous Processing
+
+Teach:
+
+* Synchronous vs asynchronous
+* Queue
+* Pub/Sub
+* Event-driven architecture
+
+Explain:
+
+API
+ ↓
+SQS
+ ↓
+Worker
+ ↓
+Database
+
+and:
+
+Service A
+ ↓
+Kafka/EventBridge
+ ↓
+Service B
+
+Cover:
+
+* Retry
+* DLQ
+* Idempotency
+* Backpressure
+* Eventual consistency
+
+⸻
+
+32. HTTP Clients
+
+Teach modern Spring approaches:
+
+* RestClient
+* WebClient
+* OpenFeign
+
+Explain when to use each.
+
+Cover:
+
+* Connection pooling
+* Connection timeout
+* Read timeout
+* Retry
+* Authentication
+* Headers
+* Error handling
+* Correlation IDs
+
+Explain why external API calls require explicit timeouts.
+
+⸻
+
+33. Resilience and Fault Tolerance
+
+Teach:
+
+* Timeout
+* Retry
+* Exponential backoff
+* Jitter
+* Circuit breaker
+* Bulkhead
+* Rate limiting
+
+Use Resilience4j.
+
+Explain circuit breaker states:
+
+CLOSED
+  ↓ failures
+OPEN
+  ↓ timeout
+HALF-OPEN
+  ↓
+CLOSED / OPEN
+
+Explain why blindly retrying requests can cause cascading failures.
+
+Explain idempotency + retries.
+
+⸻
+
+34. Scheduling
+
+Teach:
+
+* @Scheduled
+* Fixed rate
+* Fixed delay
+* Cron
+
+Explain the production problem:
+
+Instance 1 → Job executes
+Instance 2 → Job executes
+Instance 3 → Job executes
+
+Explain:
+
+* Distributed locks
+* ShedLock
+* Quartz
+* External schedulers
+
+Explain how to prevent duplicate job execution.
+
+⸻
+
+35. Database Migrations
+
+Teach:
+
+* Flyway
+* Liquibase
+
+Explain:
+
+* Versioned migrations
+* Schema evolution
+* Production migrations
+
+Teach:
+
+Expand and Contract Pattern
+
+Example:
+
+Old Application
+      ↓
+Add new column
+      ↓
+Deploy compatible application
+      ↓
+Backfill data
+      ↓
+Switch application
+      ↓
+Remove old column later
+
+Explain zero-downtime migrations.
+
+⸻
+
+36. Testing
+
+Teach testing deeply enough for SDE2.
+
+Unit Testing
+
+* JUnit 5
+* Mockito
+* Assertions
+* Parameterized tests
+
+Mockito
+
+* Mock
+* Spy
+* Stub
+* Verify
+* ArgumentCaptor
+
+Explain what should and should not be mocked.
+
+⸻
+
+37. Spring Boot Testing
+
+Teach:
+
+* @SpringBootTest
+* @WebMvcTest
+* @DataJpaTest
+* MockMvc
+* WebTestClient
+
+Explain:
+
+* Unit test
+* Slice test
+* Integration test
+
+Explain test context loading and why full @SpringBootTest tests can become slow.
+
+⸻
+
+38. Testcontainers
+
+Teach:
+
+* Testcontainers
+* PostgreSQL container
+* Redis container
+* Kafka container
+
+Explain:
+
+JUnit
+ ↓
+Testcontainers
+ ↓
+Real PostgreSQL
+ ↓
+Spring Boot
+
+Explain why integration tests against real infrastructure can be better than mocking everything.
+
+⸻
+
+39. Testing Strategy
+
+Teach the testing pyramid:
+
+        E2E
+       /   \
+ Integration
+    /       \
+   Unit Tests
+
+Explain:
+
+* Unit tests
+* Integration tests
+* Contract tests
+* E2E tests
+
+Explain:
+
+* What to mock
+* What not to mock
+* Test isolation
+* Database cleanup
+* Test data
+
+⸻
+
+40. Spring Boot Actuator
+
+Teach:
+
+* Health
+* Metrics
+* Info
+* Loggers
+* Environment
+* Beans
+* Mappings
+
+Focus particularly on:
+
+* Liveness
+* Readiness
+* Custom health indicators
+
+Explain how Actuator integrates with:
+
+* Docker
+* ECS
+* Kubernetes
+* Load balancers
+
+Explain why exposing all Actuator endpoints publicly is dangerous.
+
+⸻
+
+41. Observability
+
+Teach the three pillars:
+
+Logs
+
+* Structured logs
+* Log levels
+* Correlation IDs
+
+Metrics
+
+* Micrometer
+* Counters
+* Gauges
+* Timers
+* Histograms
+
+Traces
+
+* Trace ID
+* Span ID
+* Distributed tracing
+* OpenTelemetry
+
+Explain:
+
+Client
+ ↓
+Service A
+ ↓
+Service B
+ ↓
+Database
+
+and how a trace follows the request.
+
+Mention practical integrations:
+
+* CloudWatch
+* Prometheus
+* Grafana
+* Datadog
+* OpenTelemetry
+
+⸻
+
+42. Logging
+
+Teach:
+
+* SLF4J
+* Logback
+* Logging levels
+* Structured JSON logging
+
+Explain what should be logged:
+
+* Request ID
+* Trace ID
+* Important business events
+* Errors
+* Latency
+
+Explain what should NEVER be logged:
+
+* Passwords
+* JWT tokens
+* API keys
+* Secrets
+* Sensitive personal data
+
+⸻
+
+43. Performance Optimization
+
+Teach a systematic methodology:
+
+Measure
+  ↓
+Identify bottleneck
+  ↓
+Profile
+  ↓
+Optimize
+  ↓
+Measure again
+
+Cover:
+
+* Database
+* HTTP
+* Serialization
+* Caching
+* JVM
+* Threads
+* Connection pools
+* Network
+
+Explain why premature optimization is dangerous.
+
+⸻
+
+44. Thread Pools and Concurrency
+
+Teach:
+
+* Threads
+* ExecutorService
+* ThreadPoolExecutor
+* CompletableFuture
+* Synchronization
+* Locks
+
+Spring:
+
+* @Async
+* TaskExecutor
+
+Explain:
+
+* Race conditions
+* Deadlocks
+* Thread starvation
+* Thread pool exhaustion
+
+Explain:
+
+HTTP Requests
+      ↓
+Tomcat Thread Pool
+      ↓
+Business Logic
+      ↓
+DB Connection Pool
+      ↓
+Database
+
+Explain how bottlenecks propagate.
+
+⸻
+
+45. JVM Knowledge Required for Spring Boot SDE2
+
+Do not turn this into a JVM course.
+
+Teach only what is necessary for production Spring Boot troubleshooting:
+
+* Heap
+* Stack
+* Metaspace
+* Garbage collection
+* GC pauses
+* Threads
+* CPU
+* Memory
+
+Teach diagnostics:
+
+* Thread dump
+* Heap dump
+* Java Flight Recorder
+* Profiling
+
+Explain common symptoms and what they mean.
+
+⸻
+
+46. Virtual Threads
+
+Teach:
+
+* Platform threads
+* Virtual threads
+* Blocking I/O
+* Spring Boot support
+
+Explain:
+
+* When virtual threads help
+* When they don’t
+* CPU-bound workloads
+* I/O-bound workloads
+* Connection pool implications
+
+⸻
+
+47. Reactive Spring
+
+Teach only the level required for an SDE2.
+
+Cover:
+
+* Spring WebFlux
+* Reactor
+* Mono
+* Flux
+* Non-blocking I/O
+* Backpressure
+
+Compare:
+
+Spring MVC vs Spring WebFlux
+
+Explain:
+
+* Thread-per-request
+* Event loops
+* Blocking calls
+* Non-blocking calls
+
+Do not turn this section into a full Reactor course.
+
+⸻
+
+48. Microservices with Spring Boot
+
+Teach:
+
+* Service boundaries
+* Database per service
+* Independent deployment
+* Service-to-service communication
+
+Communication:
+
+* REST
+* Kafka
+* SQS
+* gRPC conceptually
+
+Teach:
+
+* Eventual consistency
+* Distributed transactions
+* Service discovery
+* Configuration
+* API contracts
+
+⸻
+
+49. Distributed Transactions and Saga
+
+Use:
+
+Order
+ ↓
+Payment
+ ↓
+Inventory
+ ↓
+Shipping
+
+Explain what happens if Payment succeeds but Inventory fails.
+
+Teach:
+
+* Saga
+* Choreography
+* Orchestration
+* Compensation
+* Eventual consistency
+
+Show realistic Spring Boot examples.
+
+⸻
+
+50. Idempotency
+
+Teach deeply.
+
+Cover:
+
+* REST APIs
+* Payments
+* Kafka consumers
+* SQS consumers
+* Retries
+
+Example:
+
+POST /payments
+Idempotency-Key: abc123
+
+Explain implementation approaches:
+
+* Database unique constraint
+* Idempotency table
+* Redis
+* Request hash
+
+Explain why idempotency is critical in distributed systems.
+
+⸻
+
+51. Concurrency and Data Consistency
+
+Teach:
+
+Optimistic Locking
+
+* @Version
+* Lost updates
+
+Pessimistic Locking
+
+* Database locks
+* SELECT FOR UPDATE
+
+Distributed Locks
+
+* Redis
+* Database
+
+Explain race conditions with realistic examples.
+
+⸻
+
+52. External API Integrations
+
+Teach production-grade external API integration.
+
+Cover:
+
+* Authentication
+* API keys
+* OAuth
+* Timeouts
+* Retries
+* Circuit breakers
+* Rate limits
+* Error handling
+* Idempotency
+
+Show a bad architecture:
+
+Spring Boot
+    ↓
+External API
+    ↓
+No timeout
+    ↓
+Thread waits forever
+    ↓
+Thread pool exhausted
+    ↓
+Entire API becomes unavailable
+
+Then show the correct resilient architecture.
+
+⸻
+
+53. File Uploads and Storage
+
+Teach:
+
+* MultipartFile
+* Multipart requests
+* File size limits
+* Content-type validation
+
+Explain secure file handling:
+
+* Filename sanitization
+* Path traversal
+* File type validation
+* Size limits
+* Malware scanning
+
+Explain when to store files:
+
+* Local filesystem
+* S3
+
+Explain why local filesystem storage is usually unsuitable for horizontally scaled services.
+
+⸻
+
+54. Spring Cloud — Only Relevant SDE2 Concepts
+
+Do NOT cover every Spring Cloud module.
+
+Teach only:
+
+* Spring Cloud Gateway
+* Spring Cloud Config
+* Service discovery concepts
+* Resilience4j
+* Distributed configuration
+
+Explain:
+
+* Eureka
+* Consul
+* Kubernetes service discovery
+
+Explain when AWS/Kubernetes already provides equivalent functionality.
+
+⸻
+
+55. API Gateway / Spring Cloud Gateway
+
+Teach:
+
+* Routing
+* Filters
+* Authentication
+* Authorization
+* Rate limiting
+* CORS
+* Timeouts
+* Circuit breakers
+
+Architecture:
+
+Client
+  ↓
+API Gateway
+  ↓
+Service A
+Service B
+Service C
+
+⸻
+
+56. Security Vulnerabilities Relevant to Spring Boot
+
+Teach practical backend security:
+
+* SQL Injection
+* XSS
+* CSRF
+* SSRF
+* Command Injection
+* Path Traversal
+* Broken Access Control
+* Authentication failures
+* Authorization failures
+* Sensitive data exposure
+
+Explain how Spring Boot/Spring Security helps prevent these and what developers still need to do manually.
+
+⸻
+
+57. Production Configuration
+
+Teach production configuration for:
+
+Server
+
+* Port
+* Connection limits
+* Timeouts
+* Compression
+
+Tomcat
+
+* Max threads
+* Max connections
+* Connection timeout
+
+HikariCP
+
+* Pool size
+* Timeouts
+
+Logging
+
+* Log levels
+* Structured logs
+
+Actuator
+
+* Health
+* Metrics
+* Prometheus
+
+Explain how bad configuration can create production bottlenecks.
+
+⸻
+
+58. Graceful Shutdown
+
+Explain:
+
+Load Balancer
+      ↓
+Stop new traffic
+      ↓
+Application
+      ↓
+SIGTERM
+      ↓
+Finish active requests
+      ↓
+Close resources
+      ↓
+Shutdown
+
+Teach:
+
+* SIGTERM
+* SIGKILL
+* In-flight requests
+* Connection draining
+* ECS shutdown
+* Kubernetes termination
+
+Show Spring Boot graceful shutdown configuration.
+
+⸻
+
+59. API Documentation
+
+Teach:
+
+* OpenAPI
+* Swagger UI
+* API schemas
+
+Spring:
+
+* springdoc-openapi
+
+Explain:
+
+* Request schemas
+* Response schemas
+* Error schemas
+* Authentication
+* API versioning
+
+⸻
+
+60. Architecture and Code Organization
+
+Teach:
+
+Traditional Layered Architecture
+
+Controller
+    ↓
+Service
+    ↓
+Repository
+    ↓
+Database
+
+Explain responsibilities.
+
+DTO separation
+
+Explain:
+
+* Entity
+* DTO
+* Domain model
+
+Then introduce conceptually:
+
+Hexagonal Architecture
+
+* Ports
+* Adapters
+
+Clean Architecture
+
+* Domain
+* Application
+* Infrastructure
+
+DDD
+
+* Entity
+* Value Object
+* Aggregate
+* Repository
+* Domain Service
+* Bounded Context
+
+Do not teach these as theoretical interview patterns. Explain when they provide actual value.
+
+⸻
+
+61. Design Patterns Relevant to Spring
+
+Teach only practical patterns:
+
+* Dependency Injection
+* Factory
+* Strategy
+* Adapter
+* Proxy
+* Template Method
+* Observer
+* Builder
+* Chain of Responsibility
+
+Explain where Spring itself uses these patterns.
+
+⸻
+
+62. Production Troubleshooting
+
+Create a detailed troubleshooting playbook.
+
+Problem: API returns 500
+
+Investigate:
+
+* Logs
+* Stack trace
+* Database
+* External dependencies
+* Recent deployments
+
+Problem: API returns 504
+
+Investigate:
+
+* Load balancer
+* Gateway
+* Application timeout
+* Database
+* External API
+
+Problem: CPU is 100%
+
+Investigate:
+
+* Thread dump
+* Traffic
+* Infinite loops
+* Expensive operations
+* GC
+
+Problem: Memory is high
+
+Investigate:
+
+* Heap
+* GC
+* Memory leak
+* Large objects
+* Cache
+
+Problem: Database connection pool exhausted
+
+Investigate:
+
+* Slow queries
+* Long transactions
+* Connection leak
+* Pool configuration
+* Database max connections
+
+Problem: N+1 queries
+
+Investigate:
+
+* Hibernate SQL
+* Fetch strategy
+* Query design
+
+Problem: Kafka consumer lag
+
+Investigate:
+
+* Consumer throughput
+* Partition count
+* Processing latency
+* Rebalancing
+* Downstream database
+
+Problem: Application fails during startup
+
+Investigate:
+
+* Bean creation
+* Configuration
+* Secrets
+* Database
+* Port
+* Dependency failures
+
+For every troubleshooting scenario provide:
+
+1. Symptoms
+2. Likely causes
+3. Investigation steps
+4. Commands/tools
+5. Metrics/logs to inspect
+6. Root cause examples
+7. Fix
+8. Prevention
+
+⸻
+
+63. Realistic SDE2 Production Scenarios
+
+Create detailed case studies.
+
+At minimum include:
+
+Scenario 1
+
+Traffic suddenly increases 10x.
+
+Scenario 2
+
+Database CPU reaches 100%.
+
+Scenario 3
+
+API latency increases from 100ms to 2 seconds.
+
+Scenario 4
+
+Database connection pool is exhausted.
+
+Scenario 5
+
+Kafka consumer lag continuously increases.
+
+Scenario 6
+
+Redis becomes unavailable.
+
+Scenario 7
+
+An external payment API becomes slow.
+
+Scenario 8
+
+A payment is processed twice.
+
+Scenario 9
+
+Two users update the same resource simultaneously.
+
+Scenario 10
+
+A new deployment causes 500 errors.
+
+Scenario 11
+
+Spring Boot application continuously restarts.
+
+Scenario 12
+
+One microservice becomes unavailable.
+
+Scenario 13
+
+A database migration breaks an older application instance.
+
+Scenario 14
+
+A JWT authorization vulnerability allows privilege escalation.
+
+Scenario 15
+
+Memory usage slowly increases over several hours.
+
+For every scenario explain the reasoning process an SDE2 should follow.
+
+⸻
+
+64. SDE2 Code Review Checklist
+
+Create a checklist for reviewing Spring Boot pull requests.
+
+Cover:
+
+API
+
+* REST design
+* Validation
+* Error handling
+* Idempotency
+
+Service
+
+* Business logic
+* Transaction boundaries
+* Concurrency
+
+Database
+
+* Queries
+* Indexes
+* N+1
+* Transactions
+* Connection pool
+
+Security
+
+* Authentication
+* Authorization
+* Secrets
+* Input validation
+
+Performance
+
+* External calls
+* Caching
+* Pagination
+* Thread pools
+
+Testing
+
+* Unit tests
+* Integration tests
+* Failure cases
+
+Observability
+
+* Logs
+* Metrics
+* Trace IDs
+
+⸻
+
+65. Complete Hands-On Project
+
+Create a production-grade Spring Boot project that forces me to use the majority of these concepts.
+
+Build an:
+
+E-Commerce Order Management System
+
+Architecture:
+
+flowchart TB
+    Client --> Gateway
+    Gateway --> OrderService
+    Gateway --> PaymentService
+    Gateway --> InventoryService
+    OrderService --> PostgreSQL
+    PaymentService --> PostgreSQL
+    InventoryService --> PostgreSQL
+    OrderService --> Redis
+    OrderService --> Kafka
+    Kafka --> NotificationService
+    PaymentService --> ExternalPaymentAPI
+
+The project must demonstrate:
+
+* Spring Boot
+* REST APIs
+* DTOs
+* Validation
+* Exception handling
+* PostgreSQL
+* JPA
+* Hibernate
+* Transactions
+* Optimistic locking
+* Redis
+* Kafka
+* Idempotency
+* Retry
+* Circuit breaker
+* Database migrations
+* JWT
+* Role-based authorization
+* Unit testing
+* Integration testing
+* Testcontainers
+* Docker
+* Actuator
+* Metrics
+* Structured logging
+* Distributed tracing
+* OpenAPI
+* Graceful shutdown
+
+Explain the architecture and implementation progressively.
+
+For each component explain:
+
+* Why it exists
+* Why that technology was selected
+* Alternatives
+* Failure scenarios
+* Scaling considerations
+* Security considerations
+
+⸻
+
+66. SDE2 Interview Preparation
+
+Create an interview section covering:
+
+Spring Core
+
+* IoC
+* DI
+* Bean lifecycle
+* Bean scopes
+* ApplicationContext
+* AOP
+* Proxies
+
+Spring Boot
+
+* Auto-configuration
+* Starters
+* Configuration
+* Profiles
+
+REST
+
+* API design
+* HTTP semantics
+* Validation
+* Exception handling
+* Pagination
+* Idempotency
+
+JPA/Hibernate
+
+* Persistence context
+* Dirty checking
+* Lazy loading
+* N+1
+* Transactions
+* Locking
+
+Security
+
+* JWT
+* OAuth2
+* Authentication
+* Authorization
+* CORS
+* CSRF
+
+Performance
+
+* Connection pools
+* Thread pools
+* Caching
+* DB optimization
+* JVM
+
+Microservices
+
+* Kafka
+* SQS
+* Resilience
+* Saga
+* Eventual consistency
+
+Testing
+
+* Unit
+* Integration
+* Testcontainers
+
+Production
+
+* Observability
+* Troubleshooting
+* Deployment
+* Graceful shutdown
+
+For each important interview question provide:
+
+* Question
+* What interviewer is testing
+* Strong SDE2 answer
+* Common weak answer
+* Follow-up question
+* Real-world example
+
+⸻
+
+67. Priority Classification
+
+At the beginning or end of the document, clearly classify topics.
+
+🔴 MUST KNOW DEEPLY
+
+These should be mastered:
+
+* Spring Core
+* IoC / DI
+* Beans
+* Spring Boot
+* Auto-configuration
+* Configuration
+* REST APIs
+* Spring MVC
+* DTOs
+* Validation
+* Exception handling
+* JPA
+* Hibernate
+* N+1
+* Transactions
+* HikariCP
+* Spring Security
+* JWT
+* OAuth2 fundamentals
+* Redis
+* Kafka fundamentals
+* Testing
+* Actuator
+* Logging
+* Metrics
+* Performance
+* Production troubleshooting
+* Microservice fundamentals
+* Idempotency
+* Resilience
+
+🟠 KNOW WELL
+
+* AOP
+* Spring Cache
+* Resilience4j
+* RestClient
+* WebClient
+* OpenFeign
+* Flyway
+* Liquibase
+* Testcontainers
+* Scheduling
+* Distributed locking
+* OpenTelemetry
+* Virtual threads
+* Spring Cloud Gateway
+* Saga
+* API documentation
+* WebFlux fundamentals
+
+🟡 KNOW CONCEPTUALLY
+
+* Spring Batch
+* Spring Integration
+* Spring Cloud Config
+* Eureka
+* Consul
+* Advanced Reactor
+* Advanced WebFlux
+* Advanced Spring Cloud components
+
+Explain why each category has its priority.
+
+⸻
+
+68. Final SDE2 Cheat Sheet
+
+Create a final quick-reference section.
+
+Include:
+
+Spring Core
+
+* Important annotations
+* Bean lifecycle
+* DI
+* AOP
+
+Spring Boot
+
+* Configuration
+* Profiles
+* Auto-configuration
+
+REST
+
+* HTTP methods
+* Status codes
+* Validation
+* Exception handling
+* Pagination
+* Idempotency
+
+JPA
+
+* Entity lifecycle
+* Lazy loading
+* N+1
+* Transactions
+* Locking
+
+Security
+
+* JWT
+* OAuth2
+* Authentication
+* Authorization
+
+Redis
+
+* Caching
+* TTL
+* Invalidation
+
+Kafka
+
+* Partitions
+* Consumer groups
+* Offsets
+* Retry
+* DLQ
+* Idempotency
+
+Resilience
+
+* Timeout
+* Retry
+* Circuit breaker
+* Bulkhead
+
+Testing
+
+* JUnit
+* Mockito
+* Spring Boot Test
+* Testcontainers
+
+Production
+
+* Actuator
+* Logs
+* Metrics
+* Traces
+* Health checks
+* Graceful shutdown
+
+⸻
+
+FINAL SECTION
+
+Create:
+
+What an SDE2 Java Backend Engineer Actually Needs to Know
+
+This must be a highly condensed revision section containing approximately 50–100 of the most important Spring Boot concepts.
+
+For every item give a one-line reminder.
+
+Example:
+
+1. Constructor Injection — Prefer it because dependencies are explicit and immutable.
+2. `@Transactional` — Defines transaction boundaries but relies on Spring proxy interception.
+3. Persistence Context — Tracks managed entities and enables dirty checking.
+4. N+1 — One query for parent records followed by N child queries; solve using appropriate fetching/projection.
+5. HikariCP — Database connection pool; exhaustion often indicates slow queries, long transactions, leaks, or incorrect sizing.
+
+⸻
+
+FINAL QUALITY CHECK
+
+Before producing the final Markdown document, verify internally that:
+
+* Every requested topic is covered.
+* No major SDE2 Spring Boot concept is omitted.
+* The material is focused on real backend engineering.
+* Examples use realistic Java/Spring Boot code.
+* Code examples are syntactically reasonable.
+* Architecture diagrams are readable.
+* Tables are used for comparisons.
+* Production considerations are included.
+* Security considerations are included.
+* Performance considerations are included.
+* Failure scenarios are included.
+* Troubleshooting is included.
+* Testing is included.
+* Microservice considerations are included.
+* AWS/Docker integrations are explained only where relevant.
+* Concepts are not unnecessarily duplicated.
+* Beginner-level Java explanations are kept short.
+* The guide emphasizes reasoning and trade-offs, not memorization.
+
+Most importantly:
+
+Do not create a document that merely teaches me how to use Spring Boot annotations.
+
+Create a document that teaches me how to think like an SDE2 Java backend engineer using Spring Boot in production.
+
+I should finish this guide being able to:
+
+* Build a Spring Boot service from scratch
+* Design clean REST APIs
+* Design database interactions
+* Use JPA/Hibernate correctly
+* Define transaction boundaries
+* Secure APIs
+* Implement JWT/OAuth2
+* Integrate Redis
+* Integrate Kafka/messaging
+* Call external APIs safely
+* Handle failures
+* Write meaningful tests
+* Debug production incidents
+* Diagnose performance problems
+* Understand JVM/application bottlenecks
+* Implement observability
+* Containerize the application
+* Deploy it
+* Review another engineer’s Spring Boot code
+* Make architecture decisions
+* Explain trade-offs in an SDE2 interview
+
+The final output must be a complete Markdown study/reference document, not a short summary or a list of links.

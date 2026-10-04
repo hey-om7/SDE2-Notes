@@ -3594,7 +3594,7 @@ flowchart TD
     SVC --> P1[Pod orders]
     SVC --> P2[Pod orders]
     SVC --> P3[Pod orders]
-    subgraph Deployment orders replicas=3
+    subgraph Deployment["Deployment orders (replicas=3)"]
       P1
       P2
       P3

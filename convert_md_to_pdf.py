@@ -28,14 +28,14 @@ WeasyPrint needs native libraries (pango, cairo, gdk-pixbuf). On macOS:
     brew install pango gdk-pixbuf libffi
 (or simply:  brew install weasyprint)
 
-Optional, for rendering Mermaid diagrams to real images:
+For rendering Mermaid diagrams to real images (enabled by default):
     npm install -g @mermaid-js/mermaid-cli      # provides the `mmdc` command
 
 Usage
 -----
     python convert_md_to_pdf.py                         # uses the default guide file
     python convert_md_to_pdf.py INPUT.md OUTPUT.pdf
-    python convert_md_to_pdf.py INPUT.md --render-mermaid
+    python convert_md_to_pdf.py INPUT.md --no-render-mermaid   # force source fallback
     python convert_md_to_pdf.py --help
 """
 
@@ -56,8 +56,13 @@ from pathlib import Path
 # Defaults
 # --------------------------------------------------------------------------- #
 DEFAULT_INPUT = "AWS-SDE2-Java-Backend-Complete-Guide.md"
-DOC_TITLE = "AWS SDE2 — Java Backend Developer Complete Guide"
-DOC_SUBTITLE = "A production-oriented AWS reference for Java / Spring Boot engineers"
+
+# These are only *fallbacks*. The real title/subtitle are derived from the
+# Markdown itself (the first "# " heading and the first "> " blockquote line),
+# so the same script produces a correct cover for any document. You can still
+# override them explicitly with --title / --subtitle.
+FALLBACK_TITLE = "Document"
+FALLBACK_SUBTITLE = ""
 
 # Pygments code-highlighting theme (light, print-friendly). Try e.g. "friendly",
 # "default", "tango", "manni". Change CODE_BG below to match if you pick a dark one.
@@ -140,65 +145,174 @@ def _require(module: str, pip_name: str | None = None):
 
 
 # --------------------------------------------------------------------------- #
+# Document metadata (derive title/subtitle/section count from the Markdown)
+# --------------------------------------------------------------------------- #
+# First top-level ATX heading, e.g. "# Spring Boot SDE2 — ... Guide"
+_FIRST_H1 = re.compile(r"^\#[ \t]+(?P<title>\S.*?)[ \t]*$", re.MULTILINE)
+# A numbered top-level section heading, e.g. "# 12. Spring Data JPA"
+_NUMBERED_H1 = re.compile(r"^\#[ \t]+\d+\.[ \t]+\S", re.MULTILINE)
+
+
+def _strip_md_inline(text: str) -> str:
+    """Strip common inline Markdown (emphasis, code, links) for plain display."""
+    text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)  # [label](url) -> label
+    text = re.sub(r"[*_`]+", "", text)                     # */_/` emphasis & code
+    return text.strip()
+
+
+def extract_title(md_text: str, fallback: str) -> str:
+    """The document title = text of the first '# ' heading."""
+    m = _FIRST_H1.search(md_text)
+    return _strip_md_inline(m.group("title")) if m else fallback
+
+
+def extract_subtitle(md_text: str, fallback: str) -> str:
+    """
+    The subtitle = the first blockquote line ('> ...') that appears after the
+    first H1. This matches the convention of a one-line description under the
+    title. Returns the fallback if none is found.
+    """
+    m = _FIRST_H1.search(md_text)
+    start = m.end() if m else 0
+    for line in md_text[start:].splitlines():
+        stripped = line.strip()
+        if stripped.startswith(">"):
+            quote = stripped.lstrip(">").strip()
+            if quote:
+                return _strip_md_inline(quote)
+        elif stripped.startswith("#"):
+            break  # reached the next heading before any blockquote
+    return fallback
+
+
+def count_sections(md_text: str) -> int:
+    """Number of top-level numbered sections ('# N. Title')."""
+    return len(_NUMBERED_H1.findall(md_text))
+
+
+def short_footer_label(title: str) -> str:
+    """
+    A compact footer label derived from the title: the part before the first
+    em/en dash, hyphen, or colon, capped in length.
+    e.g. "Spring Boot SDE2 — Java Backend ..." -> "Spring Boot SDE2 Guide".
+    """
+    head = re.split(r"\s*[—–\-:]\s*", title, maxsplit=1)[0].strip()
+    if len(head) > 40:
+        head = head[:40].rstrip() + "…"
+    return f"{head} Guide" if head and "guide" not in head.lower() else (head or "Guide")
+
+
+# --------------------------------------------------------------------------- #
 # Mermaid handling
 # --------------------------------------------------------------------------- #
 _MERMAID_BLOCK = re.compile(r"```mermaid[ \t]*\n(.*?)```", re.DOTALL)
+
+# Scale factor passed to mmdc (-s). Higher = sharper raster output in the PDF.
+_MERMAID_SCALE = "3"
+
+# mmdc puppeteer config: run headless Chromium with the no-sandbox flag so it
+# works in restricted / CI environments without extra setup.
+_PUPPETEER_CONFIG = '{"args": ["--no-sandbox", "--disable-setuid-sandbox"]}'
+
+# Mermaid rendering config: a clean light theme that matches the document and
+# keeps diagram text readable at print size.
+_MERMAID_CONFIG = (
+    '{'
+    '"theme": "default",'
+    '"themeVariables": {'
+    '"fontFamily": "Helvetica Neue, Segoe UI, Arial, sans-serif",'
+    '"fontSize": "16px"'
+    '},'
+    '"flowchart": {"htmlLabels": true, "curve": "basis", "useMaxWidth": true},'
+    '"sequence": {"useMaxWidth": true}'
+    '}'
+)
 
 
 def _mmdc_available() -> bool:
     return shutil.which("mmdc") is not None
 
 
-def _render_mermaid_to_svg(source: str) -> str | None:
-    """Render a single Mermaid diagram to an inline SVG string using mmdc."""
+def _render_mermaid_to_png(source: str) -> bytes | None:
+    """
+    Render a single Mermaid diagram to a high-resolution PNG using mmdc.
+
+    PNG is used (rather than SVG) because WeasyPrint's SVG support does not
+    fully handle the foreignObject / HTML labels Mermaid emits, which produced
+    the vague, mangled diagrams. A rasterised PNG embeds exactly as drawn.
+    """
     try:
         with tempfile.TemporaryDirectory() as tmp:
-            in_path = Path(tmp) / "d.mmd"
-            out_path = Path(tmp) / "d.svg"
+            tmp_dir = Path(tmp)
+            in_path = tmp_dir / "d.mmd"
+            out_path = tmp_dir / "d.png"
+            cfg_path = tmp_dir / "config.json"
+            pptr_path = tmp_dir / "puppeteer.json"
             in_path.write_text(source, encoding="utf-8")
-            subprocess.run(
-                ["mmdc", "-i", str(in_path), "-o", str(out_path),
-                 "-b", "transparent"],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+            cfg_path.write_text(_MERMAID_CONFIG, encoding="utf-8")
+            pptr_path.write_text(_PUPPETEER_CONFIG, encoding="utf-8")
+            result = subprocess.run(
+                ["mmdc",
+                 "-i", str(in_path),
+                 "-o", str(out_path),
+                 "-b", "white",
+                 "-s", _MERMAID_SCALE,
+                 "-c", str(cfg_path),
+                 "-p", str(pptr_path)],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
-            svg = out_path.read_text(encoding="utf-8")
-            # strip XML prolog so it embeds cleanly inside HTML
-            svg = re.sub(r"<\?xml.*?\?>", "", svg, flags=re.DOTALL).strip()
-            return svg
-    except Exception:
+            if result.returncode != 0 or not out_path.exists():
+                err = (result.stderr or b"").decode("utf-8", "replace").strip()
+                print(f"  warning: mermaid render failed: {err.splitlines()[-1] if err else 'unknown error'}",
+                      file=sys.stderr)
+                return None
+            return out_path.read_bytes()
+    except Exception as exc:  # pragma: no cover - defensive
+        print(f"  warning: mermaid render raised: {exc}", file=sys.stderr)
         return None
 
 
 def preprocess_mermaid(md_text: str, render: bool) -> str:
-    """Replace ```mermaid blocks with HTML figures (SVG if possible, else source)."""
+    """Replace ```mermaid blocks with HTML figures (PNG if possible, else source)."""
     use_cli = render and _mmdc_available()
-    if render and not use_cli:
-        print("  note: --render-mermaid set but 'mmdc' not found on PATH; "
-              "falling back to styled diagram source.", file=sys.stderr)
+    if render and not _mmdc_available():
+        print("  note: Mermaid rendering requested but 'mmdc' not found on PATH.\n"
+              "        Install it with:  npm install -g @mermaid-js/mermaid-cli\n"
+              "        Falling back to styled diagram source for now.",
+              file=sys.stderr)
+
+    total = len(_MERMAID_BLOCK.findall(md_text))
+    counter = {"i": 0, "ok": 0}
 
     def repl(match: re.Match) -> str:
         source = match.group(1).rstrip("\n")
+        counter["i"] += 1
         if use_cli:
-            svg = _render_mermaid_to_svg(source)
-            if svg:
-                # Embed as a data URI <img> for reliable sizing in WeasyPrint.
-                b64 = base64.b64encode(svg.encode("utf-8")).decode("ascii")
+            png = _render_mermaid_to_png(source)
+            if png:
+                counter["ok"] += 1
+                b64 = base64.b64encode(png).decode("ascii")
                 return (
-                    '\n<div class="mermaid-figure">'
-                    f'<img alt="diagram" src="data:image/svg+xml;base64,{b64}"/>'
-                    '<div class="mermaid-caption">Diagram</div></div>\n'
+                    '\n<figure class="mermaid-figure">'
+                    f'<img alt="diagram" src="data:image/png;base64,{b64}"/>'
+                    '</figure>\n'
                 )
         # Fallback: styled source box
         escaped = html.escape(source)
         return (
             '\n<div class="mermaid-fallback">'
-            '<div class="mermaid-label">◆ Diagram (Mermaid)</div>'
+            '<div class="mermaid-label">◆ Diagram (Mermaid source)</div>'
             f'<pre class="mermaid-src">{escaped}</pre></div>\n'
         )
 
-    return _MERMAID_BLOCK.sub(repl, md_text)
+    out = _MERMAID_BLOCK.sub(repl, md_text)
+    if total:
+        if use_cli:
+            print(f"  rendered {counter['ok']}/{total} Mermaid diagram(s) to images.")
+        else:
+            print(f"  found {total} Mermaid diagram(s) (shown as source).")
+    return out
 
 
 # --------------------------------------------------------------------------- #
@@ -233,9 +347,81 @@ def apply_callouts(html_text: str) -> str:
 
 
 # --------------------------------------------------------------------------- #
+# Table of contents (auto-generated index with real PDF page numbers)
+# --------------------------------------------------------------------------- #
+# Matches the rendered top-level section headings, e.g.
+#   <h1 id="1-aws-fundamentals">1. AWS Fundamentals</h1>
+_H1_WITH_ID = re.compile(
+    r'<h1[^>]*\bid="(?P<id>[^"]+)"[^>]*>(?P<text>.*?)</h1>',
+    re.DOTALL | re.IGNORECASE,
+)
+# A top-level numbered section looks like "1. Title" / "12. Title".
+_NUMBERED_SECTION = re.compile(r"^\s*\d+\.\s")
+# The hand-written static ToC block in the Markdown, from the heading down to
+# the first horizontal rule that follows it.
+_STATIC_TOC = re.compile(
+    r"<h2[^>]*>\s*Table of Contents\s*</h2>.*?(?=<hr\s*/?>|<h1)",
+    re.DOTALL | re.IGNORECASE,
+)
+
+
+def _strip_tags(text: str) -> str:
+    """Remove any inline HTML tags, returning plain text."""
+    return re.sub(r"<[^>]+>", "", text).strip()
+
+
+def build_toc_html(body_html: str) -> str:
+    """
+    Build a Table of Contents from the rendered H1 section headings.
+
+    Each entry links to the section anchor; the printed page number is filled
+    in by WeasyPrint via CSS `target-counter`, so the index always reflects the
+    true rendered page.
+    """
+    entries = []
+    for m in _H1_WITH_ID.finditer(body_html):
+        text = _strip_tags(m.group("text"))
+        if not _NUMBERED_SECTION.match(text):
+            continue  # skip the cover-adjacent / non-numbered H1s
+        # Drop the leading "N. " — the ToC re-numbers via a CSS counter so the
+        # printed numbering always stays sequential and consistent.
+        text_no_num = re.sub(r"^\s*\d+\.\s*", "", text).strip()
+        entries.append((m.group("id"), text_no_num))
+
+    if not entries:
+        return ""
+
+    items = "\n".join(
+        f'    <li><a href="#{html.escape(anchor)}">{html.escape(text_no_num)}</a></li>'
+        for anchor, text_no_num in entries
+    )
+    return (
+        '<section class="toc">\n'
+        '  <h2 class="toc-title">Table of Contents</h2>\n'
+        f'  <ol class="toc-list">\n{items}\n  </ol>\n'
+        '</section>'
+    )
+
+
+def replace_static_toc(body_html: str, toc_html: str) -> str:
+    """Swap the hand-written ToC in the Markdown for the generated index."""
+    if not toc_html:
+        return body_html
+    new_html, count = _STATIC_TOC.subn(toc_html, body_html, count=1)
+    if count:
+        return new_html
+    # No static ToC found: insert the generated one right before the first H1.
+    first_h1 = re.search(r"<h1", body_html)
+    if first_h1:
+        idx = first_h1.start()
+        return body_html[:idx] + toc_html + "\n" + body_html[idx:]
+    return toc_html + "\n" + body_html
+
+
+# --------------------------------------------------------------------------- #
 # CSS
 # --------------------------------------------------------------------------- #
-def build_css(pygments_css: str) -> str:
+def build_css(pygments_css: str, doc_title: str, footer_label: str) -> str:
     p = PALETTE
     return f"""
 /* ---------- Pygments syntax highlighting ---------- */
@@ -246,7 +432,7 @@ def build_css(pygments_css: str) -> str:
     size: A4;
     margin: 20mm 16mm 18mm 16mm;
     @top-right {{
-        content: "{DOC_TITLE}";
+        content: "{doc_title}";
         font-family: 'Helvetica Neue', Arial, sans-serif;
         font-size: 7.5pt;
         color: {p['muted']};
@@ -258,7 +444,7 @@ def build_css(pygments_css: str) -> str:
         color: {p['muted']};
     }}
     @bottom-left {{
-        content: "AWS SDE2 Guide";
+        content: "{footer_label}";
         font-family: 'Helvetica Neue', Arial, sans-serif;
         font-size: 7.5pt;
         color: {p['muted']};
@@ -451,10 +637,14 @@ blockquote p:last-child {{ margin-bottom: 0; }}
 
 /* ---------- Mermaid ---------- */
 .mermaid-figure {{
-    text-align: center; margin: 10pt 0; break-inside: avoid;
+    text-align: center; margin: 12pt 0; break-inside: avoid;
 }}
-.mermaid-figure img {{ max-width: 100%; }}
-.mermaid-caption, .mermaid-label {{
+.mermaid-figure img {{
+    max-width: 100%;
+    max-height: 220mm;
+    height: auto;
+}}
+.mermaid-caption {{
     font-size: 8pt; color: {p['muted']}; font-style: italic; margin-top: 3pt;
 }}
 .mermaid-fallback {{
@@ -476,24 +666,72 @@ blockquote p:last-child {{ margin-bottom: 0; }}
 
 /* ---------- Table of contents list spacing ---------- */
 .content > ol:first-of-type li {{ margin: 1.5pt 0; }}
+
+/* ---------- Generated Table of Contents (index with page numbers) ---------- */
+.toc {{
+    break-after: page;
+}}
+.toc-title {{
+    font-size: 18pt;
+    color: {p['ink']};
+    border-left: none;
+    border-bottom: 3px solid {p['orange']};
+    padding: 0 0 8pt 0;
+    margin: 0 0 12pt 0;
+}}
+.toc-list {{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: toc-counter;
+    font-size: 10pt;
+}}
+.toc-list li {{
+    counter-increment: toc-counter;
+    margin: 0;
+    padding: 3.4pt 0;
+    border-bottom: 1px dotted {p['border']};
+    break-inside: avoid;
+}}
+.toc-list li a {{
+    color: {p['text']};
+    text-decoration: none;
+}}
+/* numbered prefix "1. 2. 3. ..." (re-numbered independently of heading text) */
+.toc-list li a::before {{
+    content: counter(toc-counter) ".\\00a0\\00a0";
+    color: {p['orange_dark']};
+    font-weight: 700;
+}}
+/* dotted leader stretching to the real, auto-resolved PDF page number */
+.toc-list li a::after {{
+    content: leader('. ') target-counter(attr(href url), page);
+    color: {p['ink_soft']};
+    font-weight: 600;
+}}
 """
 
 
 # --------------------------------------------------------------------------- #
 # Cover page
 # --------------------------------------------------------------------------- #
-def build_cover() -> str:
+def build_cover(doc_title: str, doc_subtitle: str, section_count: int) -> str:
     import datetime
     today = datetime.date.today().strftime("%B %Y")
+    sections = f"{section_count} sections &nbsp;·&nbsp; " if section_count else ""
+    subtitle_html = (
+        f'<div class="subtitle">{html.escape(doc_subtitle)}</div>'
+        if doc_subtitle else ""
+    )
     return f"""
 <div class="cover">
   <div class="bar"></div>
-  <h1>{html.escape(DOC_TITLE)}</h1>
-  <div class="subtitle">{html.escape(DOC_SUBTITLE)}</div>
+  <h1>{html.escape(doc_title)}</h1>
+  {subtitle_html}
   <div class="meta">
     <span class="accent">Technical Reference</span> &nbsp;·&nbsp;
     Fundamentals → Production depth &nbsp;·&nbsp;
-    63 sections &nbsp;·&nbsp; {today}
+    {sections}{today}
   </div>
 </div>
 """
@@ -502,7 +740,9 @@ def build_cover() -> str:
 # --------------------------------------------------------------------------- #
 # Main conversion
 # --------------------------------------------------------------------------- #
-def convert(input_path: Path, output_path: Path, render_mermaid: bool) -> None:
+def convert(input_path: Path, output_path: Path, render_mermaid: bool,
+            title_override: str | None = None,
+            subtitle_override: str | None = None) -> None:
     markdown = _require("markdown")
     _require("pygments")
     weasyprint = _require("weasyprint")
@@ -510,6 +750,18 @@ def convert(input_path: Path, output_path: Path, render_mermaid: bool) -> None:
 
     print(f"Reading  : {input_path}")
     md_text = input_path.read_text(encoding="utf-8")
+
+    # Derive cover/header metadata from the document itself (overridable).
+    doc_title = title_override or extract_title(md_text, FALLBACK_TITLE)
+    doc_subtitle = (subtitle_override
+                    if subtitle_override is not None
+                    else extract_subtitle(md_text, FALLBACK_SUBTITLE))
+    section_count = count_sections(md_text)
+    footer_label = short_footer_label(doc_title)
+    print(f"Title    : {doc_title}")
+    if doc_subtitle:
+        print(f"Subtitle : {doc_subtitle}")
+    print(f"Sections : {section_count}")
 
     print("Processing Mermaid diagrams ...")
     md_text = preprocess_mermaid(md_text, render_mermaid)
@@ -537,14 +789,18 @@ def convert(input_path: Path, output_path: Path, render_mermaid: bool) -> None:
     print("Styling callouts ...")
     body_html = apply_callouts(body_html)
 
+    print("Building table of contents (with page numbers) ...")
+    toc_html = build_toc_html(body_html)
+    body_html = replace_static_toc(body_html, toc_html)
+
     pygments_css = HtmlFormatter(style=PYGMENTS_STYLE).get_style_defs(".codehilite")
-    css = build_css(pygments_css)
+    css = build_css(pygments_css, doc_title, footer_label)
 
     full_html = f"""<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="utf-8"><title>{html.escape(DOC_TITLE)}</title></head>
+<head><meta charset="utf-8"><title>{html.escape(doc_title)}</title></head>
 <body>
-{build_cover()}
+{build_cover(doc_title, doc_subtitle, section_count)}
 <div class="content">
 {body_html}
 </div>
@@ -569,9 +825,20 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                         help="Input Markdown file.")
     parser.add_argument("output", nargs="?", default=None,
                         help="Output PDF file (default: <input>.pdf).")
-    parser.add_argument("--render-mermaid", action="store_true",
+    parser.add_argument("--render-mermaid", dest="render_mermaid",
+                        action="store_true", default=True,
                         help="Render Mermaid diagrams to images using the "
-                             "'mmdc' CLI if available.")
+                             "'mmdc' CLI (default: enabled).")
+    parser.add_argument("--no-render-mermaid", dest="render_mermaid",
+                        action="store_false",
+                        help="Do not render Mermaid diagrams; show the diagram "
+                             "source in a styled box instead.")
+    parser.add_argument("--title", default=None,
+                        help="Override the cover/header title (default: the "
+                             "first '# ' heading in the Markdown).")
+    parser.add_argument("--subtitle", default=None,
+                        help="Override the cover subtitle (default: the first "
+                             "'> ' blockquote line after the title).")
     return parser.parse_args(argv)
 
 
@@ -586,7 +853,8 @@ def main(argv: list[str]) -> int:
         if args.output
         else input_path.with_suffix(".pdf")
     )
-    convert(input_path, output_path, args.render_mermaid)
+    convert(input_path, output_path, args.render_mermaid,
+            title_override=args.title, subtitle_override=args.subtitle)
     return 0
 
 
